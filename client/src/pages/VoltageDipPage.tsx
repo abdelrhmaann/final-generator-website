@@ -7,7 +7,7 @@ export default function VoltageDipPage() {
   const [xd, setXd] = useState(23);
   const [motorKva, setMotorKva] = useState(150);
 
-  const result = useMemo(() => calcVoltageDip(genKva, xd, motorKva), [genKva, xd, motorKva]);
+  const result = useMemo(() => calcVoltageDip({ generatorKva: genKva, xdPercent: xd, motorStartingKva: motorKva }), [genKva, xd, motorKva]);
   const dip = result.voltageDipPercent;
   const angle = Math.min(dip / 30, 1) * 180; // 0-30% → 0-180°
   const tone =

@@ -7,7 +7,7 @@ export default function FuelPage() {
   const [kw, setKw] = useState(400);
   const [lf, setLf] = useState(75);
 
-  const result = useMemo(() => calcFuelConsumption(kw, lf), [kw, lf]);
+  const result = useMemo(() => calcFuelConsumption({ generatorKw: kw, loadFactorPercent: lf }), [kw, lf]);
 
   const sfcChart = SFC_CURVE.map((p) => ({
     load: p.loadFactor * 100,
@@ -61,7 +61,7 @@ export default function FuelPage() {
 
       <Section title="Recommended Tank Sizes">
         <div className="grid md:grid-cols-3 gap-4">
-          {result.tanks.map((t) => (
+          {result.tankDimensions.map((t) => (
             <Card key={t.hours}>
               <div className="flex items-baseline justify-between">
                 <div>
