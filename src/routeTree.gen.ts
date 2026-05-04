@@ -11,8 +11,11 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VoltageDipRouteImport } from './routes/voltage-dip'
 import { Route as VentilationRouteImport } from './routes/ventilation'
+import { Route as StandardsRouteImport } from './routes/standards'
 import { Route as SizingRouteImport } from './routes/sizing'
+import { Route as SessionsRouteImport } from './routes/sessions'
 import { Route as FuelRouteImport } from './routes/fuel'
+import { Route as ExportRouteImport } from './routes/export'
 import { Route as AtsRouteImport } from './routes/ats'
 import { Route as IndexRouteImport } from './routes/index'
 
@@ -26,14 +29,29 @@ const VentilationRoute = VentilationRouteImport.update({
   path: '/ventilation',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StandardsRoute = StandardsRouteImport.update({
+  id: '/standards',
+  path: '/standards',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SizingRoute = SizingRouteImport.update({
   id: '/sizing',
   path: '/sizing',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SessionsRoute = SessionsRouteImport.update({
+  id: '/sessions',
+  path: '/sessions',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FuelRoute = FuelRouteImport.update({
   id: '/fuel',
   path: '/fuel',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExportRoute = ExportRouteImport.update({
+  id: '/export',
+  path: '/export',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AtsRoute = AtsRouteImport.update({
@@ -50,16 +68,22 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/ats': typeof AtsRoute
+  '/export': typeof ExportRoute
   '/fuel': typeof FuelRoute
+  '/sessions': typeof SessionsRoute
   '/sizing': typeof SizingRoute
+  '/standards': typeof StandardsRoute
   '/ventilation': typeof VentilationRoute
   '/voltage-dip': typeof VoltageDipRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ats': typeof AtsRoute
+  '/export': typeof ExportRoute
   '/fuel': typeof FuelRoute
+  '/sessions': typeof SessionsRoute
   '/sizing': typeof SizingRoute
+  '/standards': typeof StandardsRoute
   '/ventilation': typeof VentilationRoute
   '/voltage-dip': typeof VoltageDipRoute
 }
@@ -67,8 +91,11 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/ats': typeof AtsRoute
+  '/export': typeof ExportRoute
   '/fuel': typeof FuelRoute
+  '/sessions': typeof SessionsRoute
   '/sizing': typeof SizingRoute
+  '/standards': typeof StandardsRoute
   '/ventilation': typeof VentilationRoute
   '/voltage-dip': typeof VoltageDipRoute
 }
@@ -77,18 +104,33 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/ats'
+    | '/export'
     | '/fuel'
+    | '/sessions'
     | '/sizing'
+    | '/standards'
     | '/ventilation'
     | '/voltage-dip'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/ats' | '/fuel' | '/sizing' | '/ventilation' | '/voltage-dip'
+  to:
+    | '/'
+    | '/ats'
+    | '/export'
+    | '/fuel'
+    | '/sessions'
+    | '/sizing'
+    | '/standards'
+    | '/ventilation'
+    | '/voltage-dip'
   id:
     | '__root__'
     | '/'
     | '/ats'
+    | '/export'
     | '/fuel'
+    | '/sessions'
     | '/sizing'
+    | '/standards'
     | '/ventilation'
     | '/voltage-dip'
   fileRoutesById: FileRoutesById
@@ -96,8 +138,11 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AtsRoute: typeof AtsRoute
+  ExportRoute: typeof ExportRoute
   FuelRoute: typeof FuelRoute
+  SessionsRoute: typeof SessionsRoute
   SizingRoute: typeof SizingRoute
+  StandardsRoute: typeof StandardsRoute
   VentilationRoute: typeof VentilationRoute
   VoltageDipRoute: typeof VoltageDipRoute
 }
@@ -118,6 +163,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VentilationRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/standards': {
+      id: '/standards'
+      path: '/standards'
+      fullPath: '/standards'
+      preLoaderRoute: typeof StandardsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sizing': {
       id: '/sizing'
       path: '/sizing'
@@ -125,11 +177,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SizingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sessions': {
+      id: '/sessions'
+      path: '/sessions'
+      fullPath: '/sessions'
+      preLoaderRoute: typeof SessionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/fuel': {
       id: '/fuel'
       path: '/fuel'
       fullPath: '/fuel'
       preLoaderRoute: typeof FuelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/export': {
+      id: '/export'
+      path: '/export'
+      fullPath: '/export'
+      preLoaderRoute: typeof ExportRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ats': {
@@ -152,8 +218,11 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AtsRoute: AtsRoute,
+  ExportRoute: ExportRoute,
   FuelRoute: FuelRoute,
+  SessionsRoute: SessionsRoute,
   SizingRoute: SizingRoute,
+  StandardsRoute: StandardsRoute,
   VentilationRoute: VentilationRoute,
   VoltageDipRoute: VoltageDipRoute,
 }
