@@ -104,6 +104,8 @@
   --font-display: 'Space Grotesk', system-ui, sans-serif;
   --font-body: 'Inter', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --success: oklch(0.7 0.16 150);
+  --warning: oklch(0.78 0.16 80);
 }
 
 .dark {
