@@ -1,23 +1,49 @@
 import { Link, useLocation, Outlet } from "@tanstack/react-router";
-import { Zap, Gauge, Fuel, ArrowLeftRight, Wind, Activity } from "lucide-react";
+import { Zap, Gauge, Fuel, ArrowLeftRight, Wind, History, BookOpen, FileDown } from "lucide-react";
 
-const NAV = [
-  { to: "/", label: "Overview", icon: Activity, code: "00" },
-  { to: "/sizing", label: "kVA Sizing", icon: Zap, code: "01" },
-  { to: "/voltage-dip", label: "Voltage Dip", icon: Gauge, code: "02" },
-  { to: "/fuel", label: "Fuel Consumption", icon: Fuel, code: "03" },
-  { to: "/ats", label: "ATS Sizing", icon: ArrowLeftRight, code: "04" },
-  { to: "/ventilation", label: "Room Ventilation", icon: Wind, code: "05" },
+const MODULES = [
+  { to: "/sizing",       label: "Generator kVA Sizing", icon: Zap,            tone: "var(--mod-sizing)", tag: "Generator kVA Sizing" },
+  { to: "/voltage-dip",  label: "Voltage Dip Calculator", icon: Gauge,        tone: "var(--mod-dip)",    tag: "Voltage Dip Calculator" },
+  { to: "/fuel",         label: "Fuel Consumption",     icon: Fuel,           tone: "var(--mod-fuel)",   tag: "Fuel Consumption" },
+  { to: "/ats",          label: "ATS / Change-Over",    icon: ArrowLeftRight, tone: "var(--mod-ats)",    tag: "ATS / Change-Over" },
+  { to: "/ventilation",  label: "Room Ventilation",     icon: Wind,           tone: "var(--mod-vent)",   tag: "Room Ventilation" },
+] as const;
+
+const TOOLS = [
+  { to: "/sessions",  label: "Session History",     icon: History,  tone: "var(--primary)", tag: "Session History" },
+  { to: "/standards", label: "Standards Reference", icon: BookOpen, tone: "var(--primary)", tag: "Standards Reference" },
+  { to: "/export",    label: "Export",              icon: FileDown, tone: "var(--primary)", tag: "Export" },
 ] as const;
 
 export function Shell() {
   const { pathname } = useLocation();
-  const active = NAV.find((n) => n.to === pathname) ?? NAV[0];
+  const all = [...MODULES, ...TOOLS];
+  const active = all.find((n) => n.to === pathname);
+
+  const NavItem = ({ to, label, icon: Icon, tone }: typeof MODULES[number]) => {
+    const isActive = pathname === to;
+    return (
+      <Link
+        to={to}
+        className={[
+          "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors relative",
+          isActive
+            ? "bg-secondary text-foreground"
+            : "text-sidebar-foreground/75 hover:bg-secondary/60 hover:text-foreground",
+        ].join(" ")}
+        style={isActive ? ({ ["--tone" as any]: tone } as React.CSSProperties) : undefined}
+      >
+        {isActive && <span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-r-full" style={{ background: tone }} />}
+        <Icon className="w-4 h-4 shrink-0" style={isActive ? { color: tone } : undefined} />
+        <span className="font-medium">{label}</span>
+      </Link>
+    );
+  };
 
   return (
     <div className="min-h-screen flex bg-background text-foreground">
       <aside className="w-64 shrink-0 border-r border-border bg-sidebar text-sidebar-foreground flex flex-col sticky top-0 h-screen">
-        <div className="px-5 py-5 border-b border-sidebar-border">
+        <div className="px-5 py-5 flex items-center gap-3">
           <Link to="/" className="flex items-center gap-3">
             <div
               className="w-9 h-9 rounded-md grid place-items-center shrink-0"
@@ -26,64 +52,45 @@ export function Shell() {
               <Zap className="w-4 h-4" strokeWidth={2.5} style={{ color: "var(--primary-foreground)" }} />
             </div>
             <div className="leading-tight">
-              <div className="font-display font-bold text-base tracking-tight">GENERATOR</div>
+              <div className="font-display font-bold text-base tracking-tight">GenSizer Pro</div>
               <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground font-mono">
-                Sizing Suite
+                Generator Sizing Tool
               </div>
             </div>
           </Link>
         </div>
 
-        <nav className="flex-1 px-3 py-4 overflow-y-auto">
-          <div className="px-2 pb-2 noir-label">Modules</div>
-          <div className="space-y-0.5">
-            {NAV.map(({ to, label, icon: Icon, code }) => {
-              const isActive = pathname === to;
-              return (
-                <Link
-                  key={to}
-                  to={to}
-                  className={[
-                    "flex items-center gap-3 px-2.5 py-2 rounded-md text-sm transition-colors",
-                    isActive
-                      ? "bg-secondary text-foreground"
-                      : "text-sidebar-foreground/75 hover:bg-secondary/60 hover:text-foreground",
-                  ].join(" ")}
-                >
-                  <span
-                    className={[
-                      "font-mono text-[10px] tabular-nums w-6",
-                      isActive ? "text-primary" : "text-muted-foreground",
-                    ].join(" ")}
-                  >
-                    {code}
-                  </span>
-                  <Icon className="w-4 h-4 shrink-0" />
-                  <span className="font-medium">{label}</span>
-                  {isActive && <span className="ml-auto w-1 h-5 rounded-full bg-primary" />}
-                </Link>
-              );
-            })}
-          </div>
+        <nav className="flex-1 px-3 py-2 overflow-y-auto">
+          <div className="px-3 pt-2 pb-2 noir-label">Calculator Modules</div>
+          <div className="space-y-0.5">{MODULES.map((m) => <NavItem key={m.to} {...m} />)}</div>
+
+          <div className="px-3 pt-6 pb-2 noir-label">Tools & Reference</div>
+          <div className="space-y-0.5">{TOOLS.map((m) => <NavItem key={m.to} {...m} />)}</div>
         </nav>
 
         <div className="px-5 py-4 border-t border-sidebar-border">
           <div className="text-[10px] font-mono uppercase tracking-[0.15em] text-muted-foreground leading-relaxed">
-            IEC 60034 · ISO 8528<br />IEC 60364
+            IEC 60034 · ISO 8528<br />IEC 60364 · SEC Standards
           </div>
-          <div className="mt-2 text-[10px] text-foreground/50">v2.0 — Engineering Noir</div>
+          <div className="mt-2 text-[10px] text-foreground/50">v1.0 — MEP Engineering</div>
         </div>
       </aside>
 
       <main className="flex-1 min-w-0">
         <header className="h-14 border-b border-border flex items-center px-8 sticky top-0 bg-background/85 backdrop-blur z-10">
-          <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-[0.15em] text-muted-foreground">
-            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-            <span>{active.code} / {active.label}</span>
+          <div className="ml-auto flex items-center gap-3">
+            {active && (
+              <span className="gs-pill" style={{ ["--tone" as any]: active.tone } as React.CSSProperties}>
+                <active.icon className="w-3.5 h-3.5" />
+                {active.tag}
+              </span>
+            )}
+            <div className="text-[11px] mono uppercase tracking-[0.18em] text-muted-foreground">
+              IEC 60034 · ISO 8528 · IEC 60364
+            </div>
           </div>
-          <div className="ml-auto text-[11px] font-mono text-muted-foreground">MEP · Standby Power</div>
         </header>
-        <div className="px-6 lg:px-10 py-10 max-w-6xl mx-auto">
+        <div className="px-6 lg:px-10 py-8 max-w-7xl mx-auto">
           <Outlet />
         </div>
       </main>
