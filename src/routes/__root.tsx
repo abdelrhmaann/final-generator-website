@@ -24,6 +24,8 @@ function NotFoundComponent() {
   );
 }
 
+import { Shell } from "@/components/noir/Shell";
+
 export const Route = createRootRoute({
   head: () => ({
     meta: [
@@ -46,7 +48,7 @@ export const Route = createRootRoute({
     ],
   }),
   shellComponent: RootShell,
-  component: RootComponent,
+  component: Shell,
   notFoundComponent: NotFoundComponent,
 });
 
@@ -64,6 +66,3 @@ function RootShell({ children }: { children: React.ReactNode }) {
   );
 }
 
-function RootComponent() {
-  return <Outlet />;
-}
