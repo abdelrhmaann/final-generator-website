@@ -9,8 +9,38 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as VoltageDipRouteImport } from './routes/voltage-dip'
+import { Route as VentilationRouteImport } from './routes/ventilation'
+import { Route as SizingRouteImport } from './routes/sizing'
+import { Route as FuelRouteImport } from './routes/fuel'
+import { Route as AtsRouteImport } from './routes/ats'
 import { Route as IndexRouteImport } from './routes/index'
 
+const VoltageDipRoute = VoltageDipRouteImport.update({
+  id: '/voltage-dip',
+  path: '/voltage-dip',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VentilationRoute = VentilationRouteImport.update({
+  id: '/ventilation',
+  path: '/ventilation',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SizingRoute = SizingRouteImport.update({
+  id: '/sizing',
+  path: '/sizing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FuelRoute = FuelRouteImport.update({
+  id: '/fuel',
+  path: '/fuel',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AtsRoute = AtsRouteImport.update({
+  id: '/ats',
+  path: '/ats',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -19,28 +49,96 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/ats': typeof AtsRoute
+  '/fuel': typeof FuelRoute
+  '/sizing': typeof SizingRoute
+  '/ventilation': typeof VentilationRoute
+  '/voltage-dip': typeof VoltageDipRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/ats': typeof AtsRoute
+  '/fuel': typeof FuelRoute
+  '/sizing': typeof SizingRoute
+  '/ventilation': typeof VentilationRoute
+  '/voltage-dip': typeof VoltageDipRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/ats': typeof AtsRoute
+  '/fuel': typeof FuelRoute
+  '/sizing': typeof SizingRoute
+  '/ventilation': typeof VentilationRoute
+  '/voltage-dip': typeof VoltageDipRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/ats'
+    | '/fuel'
+    | '/sizing'
+    | '/ventilation'
+    | '/voltage-dip'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/ats' | '/fuel' | '/sizing' | '/ventilation' | '/voltage-dip'
+  id:
+    | '__root__'
+    | '/'
+    | '/ats'
+    | '/fuel'
+    | '/sizing'
+    | '/ventilation'
+    | '/voltage-dip'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AtsRoute: typeof AtsRoute
+  FuelRoute: typeof FuelRoute
+  SizingRoute: typeof SizingRoute
+  VentilationRoute: typeof VentilationRoute
+  VoltageDipRoute: typeof VoltageDipRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/voltage-dip': {
+      id: '/voltage-dip'
+      path: '/voltage-dip'
+      fullPath: '/voltage-dip'
+      preLoaderRoute: typeof VoltageDipRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ventilation': {
+      id: '/ventilation'
+      path: '/ventilation'
+      fullPath: '/ventilation'
+      preLoaderRoute: typeof VentilationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sizing': {
+      id: '/sizing'
+      path: '/sizing'
+      fullPath: '/sizing'
+      preLoaderRoute: typeof SizingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fuel': {
+      id: '/fuel'
+      path: '/fuel'
+      fullPath: '/fuel'
+      preLoaderRoute: typeof FuelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ats': {
+      id: '/ats'
+      path: '/ats'
+      fullPath: '/ats'
+      preLoaderRoute: typeof AtsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -53,6 +151,11 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AtsRoute: AtsRoute,
+  FuelRoute: FuelRoute,
+  SizingRoute: SizingRoute,
+  VentilationRoute: VentilationRoute,
+  VoltageDipRoute: VoltageDipRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -24,16 +24,18 @@ function NotFoundComponent() {
   );
 }
 
+import { Shell } from "@/components/noir/Shell";
+
 export const Route = createRootRoute({
   head: () => ({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "GENERATOR — Sizing Suite" },
+      { name: "description", content: "Engineering Noir generator design calculations: kVA sizing, voltage dip, fuel, ATS, ventilation." },
+      { name: "author", content: "GENERATOR" },
+      { property: "og:title", content: "GENERATOR — Sizing Suite" },
+      { property: "og:description", content: "Engineering Noir generator design calculations." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
@@ -46,7 +48,7 @@ export const Route = createRootRoute({
     ],
   }),
   shellComponent: RootShell,
-  component: RootComponent,
+  component: Shell,
   notFoundComponent: NotFoundComponent,
 });
 
@@ -64,6 +66,3 @@ function RootShell({ children }: { children: React.ReactNode }) {
   );
 }
 
-function RootComponent() {
-  return <Outlet />;
-}
