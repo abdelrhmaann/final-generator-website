@@ -61,51 +61,55 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
-/* Engineering Noir — single dark theme */
+/* GenSizer Pro — Engineering Noir dark theme */
 :root {
-  --radius: 0.375rem;
-  --background: oklch(0.13 0 0);
-  --foreground: oklch(0.96 0 0);
-  --card: oklch(0.165 0 0);
-  --card-foreground: oklch(0.96 0 0);
-  --popover: oklch(0.165 0 0);
-  --popover-foreground: oklch(0.96 0 0);
-  --primary: oklch(0.66 0.18 38);
-  --primary-foreground: oklch(0.13 0 0);
-  --primary-glow: oklch(0.74 0.19 45);
-  --secondary: oklch(0.22 0 0);
-  --secondary-foreground: oklch(0.96 0 0);
-  --muted: oklch(0.2 0 0);
-  --muted-foreground: oklch(0.62 0 0);
-  --accent: oklch(0.66 0.18 38);
-  --accent-foreground: oklch(0.13 0 0);
-  --destructive: oklch(0.62 0.22 27);
+  --radius: 0.5rem;
+  --background: oklch(0.16 0.02 248);
+  --foreground: oklch(0.93 0.01 220);
+  --card: oklch(0.19 0.025 248);
+  --card-foreground: oklch(0.93 0.01 220);
+  --popover: oklch(0.19 0.025 248);
+  --popover-foreground: oklch(0.93 0.01 220);
+  --primary: oklch(0.72 0.16 230);                /* electric blue */
+  --primary-foreground: oklch(0.13 0.02 248);
+  --primary-glow: oklch(0.78 0.17 225);
+  --secondary: oklch(0.24 0.03 248);
+  --secondary-foreground: oklch(0.93 0.01 220);
+  --muted: oklch(0.22 0.025 248);
+  --muted-foreground: oklch(0.58 0.015 230);
+  --accent: oklch(0.72 0.16 230);
+  --accent-foreground: oklch(0.13 0.02 248);
+  --destructive: oklch(0.65 0.22 25);
   --destructive-foreground: oklch(0.98 0 0);
-  --success: oklch(0.7 0.16 150);
-  --warning: oklch(0.78 0.16 80);
-  --border: oklch(0.26 0 0);
-  --input: oklch(0.22 0 0);
-  --ring: oklch(0.66 0.18 38);
-  --chart-1: oklch(0.66 0.18 38);
-  --chart-2: oklch(0.74 0.19 45);
-  --chart-3: oklch(0.55 0.02 240);
-  --chart-4: oklch(0.78 0.16 80);
-  --chart-5: oklch(0.7 0.16 150);
-  --sidebar: oklch(0.105 0 0);
-  --sidebar-foreground: oklch(0.86 0 0);
-  --sidebar-primary: oklch(0.66 0.18 38);
-  --sidebar-primary-foreground: oklch(0.13 0 0);
-  --sidebar-accent: oklch(0.2 0 0);
-  --sidebar-accent-foreground: oklch(0.96 0 0);
-  --sidebar-border: oklch(0.22 0 0);
-  --sidebar-ring: oklch(0.66 0.18 38);
-  --gradient-ember: linear-gradient(135deg, oklch(0.66 0.18 38), oklch(0.74 0.19 45));
-  --shadow-ember: 0 10px 40px -10px oklch(0.66 0.18 38 / 0.35);
+  --success: oklch(0.72 0.18 150);
+  --warning: oklch(0.78 0.16 75);
+  --border: oklch(0.28 0.03 248);
+  --input: oklch(0.22 0.025 248);
+  --ring: oklch(0.72 0.16 230);
+  /* module accents */
+  --mod-sizing:  oklch(0.72 0.16 230);            /* blue */
+  --mod-dip:     oklch(0.78 0.16 75);             /* amber */
+  --mod-fuel:    oklch(0.75 0.18 60);             /* orange */
+  --mod-ats:     oklch(0.72 0.16 295);            /* purple */
+  --mod-vent:    oklch(0.72 0.18 150);            /* green */
+  --chart-1: oklch(0.72 0.16 230);
+  --chart-2: oklch(0.75 0.18 60);
+  --chart-3: oklch(0.72 0.18 150);
+  --chart-4: oklch(0.78 0.16 75);
+  --chart-5: oklch(0.72 0.16 295);
+  --sidebar: oklch(0.13 0.02 248);
+  --sidebar-foreground: oklch(0.86 0.01 220);
+  --sidebar-primary: oklch(0.72 0.16 230);
+  --sidebar-primary-foreground: oklch(0.13 0.02 248);
+  --sidebar-accent: oklch(0.22 0.025 248);
+  --sidebar-accent-foreground: oklch(0.93 0.01 220);
+  --sidebar-border: oklch(0.24 0.03 248);
+  --sidebar-ring: oklch(0.72 0.16 230);
+  --gradient-ember: linear-gradient(135deg, oklch(0.72 0.16 230), oklch(0.78 0.17 225));
+  --shadow-ember: 0 10px 40px -10px oklch(0.72 0.16 230 / 0.35);
   --font-display: 'Space Grotesk', system-ui, sans-serif;
   --font-body: 'Inter', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
-  --success: oklch(0.7 0.16 150);
-  --warning: oklch(0.78 0.16 80);
 }
 
 .dark {
@@ -169,7 +173,7 @@
   transition: border-color 0.15s;
   outline: none;
 }
-.noir-input:focus { border-color: var(--primary); box-shadow: 0 0 0 2px oklch(0.66 0.18 38 / 0.18); }
+.noir-input:focus { border-color: var(--primary); box-shadow: 0 0 0 2px oklch(0.72 0.16 230 / 0.22); }
 .noir-label {
   font-size: 0.68rem; font-weight: 600;
   color: var(--muted-foreground);
@@ -213,3 +217,62 @@
 .mono { font-family: var(--font-mono); }
 .text-success { color: var(--success); }
 .text-warning { color: var(--warning); }
+
+/* GenSizer module-themed surfaces */
+.gs-stat {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  position: relative;
+  overflow: hidden;
+}
+.gs-stat::before {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  background: var(--tone, var(--primary));
+}
+.gs-stat-label {
+  font-family: var(--font-mono); font-size: 0.62rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.14em;
+  color: var(--tone, var(--primary));
+}
+.gs-stat-value {
+  font-family: var(--font-display);
+  font-size: 2.1rem; font-weight: 700; line-height: 1.05;
+  color: var(--tone, var(--foreground));
+  font-variant-numeric: tabular-nums; letter-spacing: -0.02em;
+}
+.gs-stat-unit { font-family: var(--font-mono); font-size: 0.7rem; color: var(--muted-foreground); margin-left: 0.35rem; text-transform: uppercase; }
+.gs-stat-sub { font-size: 0.7rem; color: var(--muted-foreground); margin-top: 0.35rem; }
+
+/* module accent pill (top-right of header) */
+.gs-pill {
+  display: inline-flex; align-items: center; gap: 0.45rem;
+  padding: 0.35rem 0.75rem; border-radius: 999px;
+  font-family: var(--font-display); font-size: 0.78rem; font-weight: 600;
+  background: color-mix(in oklab, var(--tone, var(--primary)) 18%, transparent);
+  color: var(--tone, var(--primary));
+  border: 1px solid color-mix(in oklab, var(--tone, var(--primary)) 35%, transparent);
+}
+
+.gs-section-label {
+  font-family: var(--font-mono); font-size: 0.66rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.14em;
+  color: var(--primary);
+}
+
+.gs-row { padding: 0.55rem 0.75rem; border-radius: 6px; }
+.gs-row:nth-child(odd) { background: color-mix(in oklab, var(--card) 70%, var(--background)); }
+
+.gs-chip {
+  font-family: var(--font-mono); font-size: 0.7rem;
+  padding: 0.25rem 0.55rem; border-radius: 4px;
+  border: 1px solid var(--border); color: var(--muted-foreground);
+  background: var(--secondary);
+}
+.gs-chip[data-active="true"] {
+  background: color-mix(in oklab, var(--success) 22%, transparent);
+  color: var(--success);
+  border-color: color-mix(in oklab, var(--success) 45%, transparent);
+  font-weight: 700;
+}
