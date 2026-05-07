@@ -51,13 +51,25 @@ function Page() {
         <div className="noir-card p-5 self-start">
           <div className="gs-section-label mb-4">Input Parameters</div>
           <div className="noir-label mb-1.5">Generator Output (kW)</div>
-          <input className="noir-input mb-4" type="number" value={kw} onChange={(e) => setKw(parseFloat(e.target.value) || 0)} />
+          <input className="noir-input mb-4" type="number" min={10} value={kw} onChange={(e) => setKw(parseFloat(e.target.value) || 0)} />
 
           <div className="noir-label mb-1.5">Load Factor (%)</div>
-          <input className="noir-input mb-2" type="number" value={lf} onChange={(e) => setLf(Math.min(100, Math.max(0, parseFloat(e.target.value) || 0)))} />
+          <input className="noir-input mb-2" type="number" min={0} max={100} value={lf} onChange={(e) => setLf(Math.min(100, Math.max(0, parseFloat(e.target.value) || 0)))} />
           <input type="range" min={0} max={100} step={1} value={lf} onChange={(e) => setLf(parseInt(e.target.value))}
             className="w-full accent-[var(--mod-fuel)]" />
           <div className="flex justify-between text-[10px] mono text-muted-foreground mb-4"><span>0%</span><span>50%</span><span>100%</span></div>
+
+          <label className="flex items-center gap-2 text-xs cursor-pointer mb-2">
+            <input type="checkbox" checked={useCustomSfc} onChange={(e) => setUseCustomSfc(e.target.checked)} />
+            <span>Use manufacturer SFC from datasheet</span>
+          </label>
+          {useCustomSfc && (
+            <>
+              <input className="noir-input mb-1" type="number" step={0.01} min={0.20} max={0.60} value={customSfc} onChange={(e) => setCustomSfc(parseFloat(e.target.value) || 0)} />
+              <p className="text-[11px] text-muted-foreground mb-3">From manufacturer Performance Data Sheet at your load factor (range 0.20–0.60 L/kWh).</p>
+              {r.sfcWarning && <p className="text-[11px] text-warning mb-3">{r.sfcWarning}</p>}
+            </>
+          )}
 
           <button className="noir-btn noir-btn-primary w-full justify-center mb-4"
             style={{ background: "linear-gradient(135deg, var(--mod-fuel), oklch(0.78 0.18 65))" }}
