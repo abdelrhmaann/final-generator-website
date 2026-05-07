@@ -160,14 +160,20 @@ function SizingPage() {
         </div>
         <div className="flex justify-between mt-1.5 text-[10px] mono text-muted-foreground">
           <span>0%</span>
-          <span className="text-warning">75% (Recommended max)</span>
-          <span className="text-destructive">100%</span>
+          <span className="text-warning">{ratingInfo.warn}% (Recommended max)</span>
+          <span className="text-destructive">{ratingInfo.crit}%+</span>
         </div>
-        {result.loadingPercent > 90 && (
-          <div className="mt-3 flex items-center gap-2 text-destructive text-sm">
-            <AlertTriangle className="w-4 h-4" /> Generator loading exceeds 90%. Consider upsizing.
+        {result.loadingPercent > ratingInfo.crit ? (
+          <div className="mt-3 flex items-start gap-2 text-destructive text-sm">
+            <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
+            <span>Loading exceeds {ratingInfo.crit}% — generator will likely trip on first motor start. Upsize immediately.</span>
           </div>
-        )}
+        ) : result.loadingPercent > ratingInfo.warn ? (
+          <div className="mt-3 flex items-start gap-2 text-warning text-sm">
+            <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
+            <span>Loading exceeds {ratingInfo.warn}% — exceeds ISO 8528-1 {ratingType} continuous limit. Consider the next standard size.</span>
+          </div>
+        ) : null}
       </div>
 
       {/* Chart */}
