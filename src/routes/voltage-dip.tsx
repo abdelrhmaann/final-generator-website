@@ -49,10 +49,15 @@ function Page() {
               })}
             </div>
             <p className="text-[11px] text-muted-foreground mt-1">Select standard size to auto-fill X″d</p>
+            <p className="text-[11px] text-muted-foreground mt-2 leading-relaxed">
+              ⚠ These X″d values are indicative typical values per ISO 8528 / manufacturer survey.
+              Actual X″d varies ±30% between OEMs. Verify against the generator's FAT certificate
+              or manufacturer datasheet for accurate results.
+            </p>
           </Field>
 
           <Field label="Subtransient Reactance X″d (%)" hint="Typical 16–29%">
-            <input className="noir-input" type="number" step={0.1} value={xd} onChange={(e) => setXd(parseFloat(e.target.value) || 0)} />
+            <input className="noir-input" type="number" step={0.1} min={5} max={40} value={xd} onChange={(e) => setXd(parseFloat(e.target.value) || 0)} />
           </Field>
 
           <Field label="Motor Starting kVA" hint="Largest single motor starting kVA demand">
