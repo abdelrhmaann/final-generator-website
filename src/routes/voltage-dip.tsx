@@ -91,8 +91,8 @@ function Page() {
         <div className="space-y-4">
           <div className="noir-card p-5">
             <div className="gs-section-label text-center mb-3">Voltage Dip Result</div>
-            <div className="flex flex-col items-center">
-              <svg viewBox="0 0 200 130" className="w-full max-w-xs">
+            <div className="flex flex-col items-center relative">
+              <svg viewBox="0 0 200 140" className="w-full max-w-xs">
                 <defs>
                   <linearGradient id="g" x1="0" x2="1">
                     <stop offset="0%" stopColor="var(--success)" />
@@ -107,7 +107,16 @@ function Page() {
                   y2={110 - 70 * Math.sin(Math.PI - (angle * Math.PI) / 180)}
                   stroke="var(--foreground)" strokeWidth="2.5" strokeLinecap="round" />
                 <circle cx="100" cy="110" r="5" fill="var(--primary)" />
+                <text x="100" y="132" textAnchor="middle" fill="var(--muted-foreground)" fontSize="9" fontFamily="JetBrains Mono">
+                  0% — 30% (30%+ = critical)
+                </text>
               </svg>
+              {overflow && (
+                <div className="absolute top-2 left-1/2 -translate-x-1/2 px-2.5 py-1 rounded text-[10px] mono font-bold tracking-wider"
+                  style={{ background: "var(--destructive)", color: "var(--destructive-foreground, white)" }}>
+                  EXCEEDS GAUGE RANGE — Actual dip: {dip.toFixed(1)}%
+                </div>
+              )}
               <div className="font-display text-5xl font-bold tabular-nums mt-2" style={{ color: tone }}>{dip.toFixed(1)}<span className="text-2xl">%</span></div>
               <div className="noir-label mt-1">Voltage Dip</div>
             </div>
