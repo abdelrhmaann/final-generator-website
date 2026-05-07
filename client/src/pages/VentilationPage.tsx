@@ -8,7 +8,7 @@ export default function VentilationPage() {
   const [w, setW] = useState(5);
   const [h, setH] = useState(3.5);
 
-  const result = useMemo(() => calcRoomVentilation({ generatorKw: kw, roomL: l, roomW: w, roomH: h }), [kw, l, w, h]);
+  const result = useMemo(() => calcRoomVentilation({ generatorKw: kw, roomL: l, roomW: w, roomH: h, coolingConfig: "radiator-in-room" }), [kw, l, w, h]);
 
   return (
     <>
