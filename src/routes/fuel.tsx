@@ -96,18 +96,32 @@ function Page() {
             <StatCard tone="var(--success)"     label="Load Factor" value={`${lf}%`} />
           </div>
 
+          {r.isBelowNoLoad && (
+            <div className="noir-card p-4 border-l-4 border-warning bg-warning/5">
+              <p className="text-sm text-warning leading-relaxed">
+                ⚠ Load factor is very low. Actual consumption will not drop below the no-load idle rate of approximately {r.minIdleConsumptionLPerHr.toFixed(1)} L/hr (ISO 8528-5 Annex B). Diesel generators should not run at &lt;25% load for extended periods (wet stacking risk).
+              </p>
+            </div>
+          )}
+
           <div className="noir-card p-5">
             <div className="gs-section-label mb-3">Fuel Tank Sizing — Autonomy Requirements</div>
             <div className="grid md:grid-cols-3 gap-4">
               {r.tankDimensions.map((t, i) => {
                 const tones = ["var(--success)", "var(--mod-sizing)", "var(--mod-fuel)"];
                 return (
-                  <div key={t.hours} className="gs-stat" style={{ ["--tone" as any]: tones[i] } as React.CSSProperties}>
+                  <div key={t.hours} className="gs-stat relative" style={{ ["--tone" as any]: tones[i] } as React.CSSProperties}>
+                    {t.bulkStorageRequired && (
+                      <span className="absolute top-2 right-2 px-2 py-0.5 rounded text-[9px] mono font-bold tracking-wider bg-warning/20 text-warning border border-warning/40">
+                        BULK STORAGE
+                      </span>
+                    )}
                     <div className="gs-stat-label">{t.hours}-Hour Autonomy</div>
                     <div className="gs-stat-value mt-1">{Math.round(t.liters)}<span className="gs-stat-unit">L</span></div>
                     <div className="text-[11px] text-muted-foreground mt-2">⛟ Suggested tank dimensions:</div>
                     <div className="mono text-xs mt-0.5">{t.suggestedL}m × {t.suggestedW}m × {t.suggestedH}m</div>
                     <div className="text-[10px] text-muted-foreground">(L × W × H, rectangular)</div>
+                    {t.note && <div className="text-[10px] text-warning mt-2 leading-snug">{t.note}</div>}
                   </div>
                 );
               })}
