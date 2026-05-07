@@ -1,5 +1,5 @@
 import { Link, useLocation, Outlet } from "@tanstack/react-router";
-import { Zap, Gauge, Fuel, ArrowLeftRight, Wind, History, BookOpen, FileDown } from "lucide-react";
+import { Zap, Gauge, Fuel, ArrowLeftRight, Wind, History, BookOpen, FileDown, Thermometer, Bolt } from "lucide-react";
 
 const MODULES = [
   { to: "/sizing",       label: "Generator kVA Sizing", icon: Zap,            tone: "var(--mod-sizing)", tag: "Generator kVA Sizing" },
@@ -7,6 +7,8 @@ const MODULES = [
   { to: "/fuel",         label: "Fuel Consumption",     icon: Fuel,           tone: "var(--mod-fuel)",   tag: "Fuel Consumption" },
   { to: "/ats",          label: "ATS / Change-Over",    icon: ArrowLeftRight, tone: "var(--mod-ats)",    tag: "ATS / Change-Over" },
   { to: "/ventilation",  label: "Room Ventilation",     icon: Wind,           tone: "var(--mod-vent)",   tag: "Room Ventilation" },
+  { to: "/derating",     label: "Site Derating",        icon: Thermometer,    tone: "var(--mod-fuel)",   tag: "Site Derating" },
+  { to: "/shortcircuit", label: "Short-Circuit Isc",    icon: Bolt,           tone: "var(--destructive)", tag: "Short-Circuit Isc" },
 ] as const;
 
 const TOOLS = [
