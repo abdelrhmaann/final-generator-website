@@ -61,7 +61,7 @@ function Page() {
           </Field>
 
           <Field label="Motor Starting kVA" hint="Largest single motor starting kVA demand">
-            <input className="noir-input" type="number" value={motorKva} onChange={(e) => setMotorKva(parseFloat(e.target.value) || 0)} />
+            <input className="noir-input" type="number" min={0} value={motorKva} onChange={(e) => setMotorKva(parseFloat(e.target.value) || 0)} />
           </Field>
 
           <div className="noir-label mb-1.5">Load Sensitivity</div>
