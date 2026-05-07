@@ -13,6 +13,7 @@ import { Route as VoltageDipRouteImport } from './routes/voltage-dip'
 import { Route as VentilationRouteImport } from './routes/ventilation'
 import { Route as StandardsRouteImport } from './routes/standards'
 import { Route as SizingRouteImport } from './routes/sizing'
+import { Route as ShortcircuitRouteImport } from './routes/shortcircuit'
 import { Route as SessionsRouteImport } from './routes/sessions'
 import { Route as FuelRouteImport } from './routes/fuel'
 import { Route as ExportRouteImport } from './routes/export'
@@ -38,6 +39,11 @@ const StandardsRoute = StandardsRouteImport.update({
 const SizingRoute = SizingRouteImport.update({
   id: '/sizing',
   path: '/sizing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShortcircuitRoute = ShortcircuitRouteImport.update({
+  id: '/shortcircuit',
+  path: '/shortcircuit',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SessionsRoute = SessionsRouteImport.update({
@@ -78,6 +84,7 @@ export interface FileRoutesByFullPath {
   '/export': typeof ExportRoute
   '/fuel': typeof FuelRoute
   '/sessions': typeof SessionsRoute
+  '/shortcircuit': typeof ShortcircuitRoute
   '/sizing': typeof SizingRoute
   '/standards': typeof StandardsRoute
   '/ventilation': typeof VentilationRoute
@@ -90,6 +97,7 @@ export interface FileRoutesByTo {
   '/export': typeof ExportRoute
   '/fuel': typeof FuelRoute
   '/sessions': typeof SessionsRoute
+  '/shortcircuit': typeof ShortcircuitRoute
   '/sizing': typeof SizingRoute
   '/standards': typeof StandardsRoute
   '/ventilation': typeof VentilationRoute
@@ -103,6 +111,7 @@ export interface FileRoutesById {
   '/export': typeof ExportRoute
   '/fuel': typeof FuelRoute
   '/sessions': typeof SessionsRoute
+  '/shortcircuit': typeof ShortcircuitRoute
   '/sizing': typeof SizingRoute
   '/standards': typeof StandardsRoute
   '/ventilation': typeof VentilationRoute
@@ -117,6 +126,7 @@ export interface FileRouteTypes {
     | '/export'
     | '/fuel'
     | '/sessions'
+    | '/shortcircuit'
     | '/sizing'
     | '/standards'
     | '/ventilation'
@@ -129,6 +139,7 @@ export interface FileRouteTypes {
     | '/export'
     | '/fuel'
     | '/sessions'
+    | '/shortcircuit'
     | '/sizing'
     | '/standards'
     | '/ventilation'
@@ -141,6 +152,7 @@ export interface FileRouteTypes {
     | '/export'
     | '/fuel'
     | '/sessions'
+    | '/shortcircuit'
     | '/sizing'
     | '/standards'
     | '/ventilation'
@@ -154,6 +166,7 @@ export interface RootRouteChildren {
   ExportRoute: typeof ExportRoute
   FuelRoute: typeof FuelRoute
   SessionsRoute: typeof SessionsRoute
+  ShortcircuitRoute: typeof ShortcircuitRoute
   SizingRoute: typeof SizingRoute
   StandardsRoute: typeof StandardsRoute
   VentilationRoute: typeof VentilationRoute
@@ -188,6 +201,13 @@ declare module '@tanstack/react-router' {
       path: '/sizing'
       fullPath: '/sizing'
       preLoaderRoute: typeof SizingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shortcircuit': {
+      id: '/shortcircuit'
+      path: '/shortcircuit'
+      fullPath: '/shortcircuit'
+      preLoaderRoute: typeof ShortcircuitRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sessions': {
@@ -242,6 +262,7 @@ const rootRouteChildren: RootRouteChildren = {
   ExportRoute: ExportRoute,
   FuelRoute: FuelRoute,
   SessionsRoute: SessionsRoute,
+  ShortcircuitRoute: ShortcircuitRoute,
   SizingRoute: SizingRoute,
   StandardsRoute: StandardsRoute,
   VentilationRoute: VentilationRoute,
