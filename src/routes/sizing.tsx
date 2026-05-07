@@ -23,8 +23,19 @@ let nid = 0;
 const newId = () => `s${++nid}-${Date.now().toString(36).slice(-4)}`;
 const defaultStep = (): LoadStep => ({ id: newId(), name: "", kw: 0, kva: 0, pf: 0.85, loadType: "inductive", startingKvaMultiplier: 1 });
 
+type RatingType = "ESP" | "PRP" | "COP";
+const RATING_INFO: Record<RatingType, { label: string; warn: number; crit: number; desc: string }> = {
+  ESP: { label: "ESP — Standby", warn: 80, crit: 90,
+    desc: "Emergency Standby — max 80% average load, ≤200 hrs/year. No sustained overload. (ISO 8528-1 §12.1)" },
+  PRP: { label: "PRP — Prime", warn: 70, crit: 80,
+    desc: "Prime Rated Power — continuous duty, 70% avg load. 10% overload for 1 hr/12 hrs available. (ISO 8528-1 §12.2)" },
+  COP: { label: "COP — Continuous", warn: 60, crit: 75,
+    desc: "Continuous Operating Power — 100% load, 8760 hrs/year. No overload permitted. (ISO 8528-1 §12.3)" },
+};
+
 function SizingPage() {
   const [project] = useProject();
+  const [ratingType, setRatingType] = useState<RatingType>("ESP");
   const [steps, setSteps] = useState<LoadStep[]>([
     { ...defaultStep(), name: "Step 1", kw: 710, kva: 835.3, pf: 0.85, loadType: "motor-dol", startingKvaMultiplier: 1 },
     { ...defaultStep(), name: "Step 2", kw: 50,  kva: 58.8,  pf: 0.85, loadType: "motor-dol", startingKvaMultiplier: 6 },
@@ -33,6 +44,7 @@ function SizingPage() {
     { ...defaultStep(), name: "Step 5", kw: 10,  kva: 11.8,  pf: 0.85, loadType: "resistive", startingKvaMultiplier: 1 },
   ]);
   const result = useMemo(() => calcGenSizing(steps), [steps]);
+  const ratingInfo = RATING_INFO[ratingType];
 
   const update = (id: string, key: keyof LoadStep, value: string | number) => {
     setSteps((prev) => prev.map((s) => {
@@ -58,8 +70,8 @@ function SizingPage() {
     Surge: Math.round(Math.max(0, s.startingKva - s.stepKva)),
   }));
 
-  const tone = result.loadingPercent > 90 ? "var(--destructive)"
-    : result.loadingPercent > 75 ? "var(--warning)" : "var(--success)";
+  const tone = result.loadingPercent > ratingInfo.crit ? "var(--destructive)"
+    : result.loadingPercent > ratingInfo.warn ? "var(--warning)" : "var(--success)";
 
   return (
     <>
