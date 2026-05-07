@@ -19,7 +19,11 @@ function Page() {
   const [l, setL] = useState(8);
   const [w, setW] = useState(5);
   const [h, setH] = useState(3.5);
-  const r = useMemo(() => calcRoomVentilation({ generatorKw: kw, roomL: l, roomW: w, roomH: h, coolingConfig: "radiator-in-room" }), [kw, l, w, h]);
+  const [coolingConfig, setCoolingConfig] = useState<"radiator-in-room" | "remote-radiator">("radiator-in-room");
+  const r = useMemo(
+    () => calcRoomVentilation({ generatorKw: kw, roomL: l, roomW: w, roomH: h, coolingConfig }),
+    [kw, l, w, h, coolingConfig],
+  );
 
   return (
     <>
