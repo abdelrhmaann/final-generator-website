@@ -35,6 +35,7 @@ function Page() {
                 {m.tag}
               </span>
               <span className="text-sm">{s.projectName || "Untitled"} — {m.label}</span>
+              <span className="px-1.5 py-0.5 rounded text-[10px] mono text-muted-foreground border border-border">{m.standard}</span>
               <span className="ml-auto text-[11px] mono text-muted-foreground">{new Date(s.savedAt).toLocaleString()}</span>
               <Link to={m.route} className="noir-btn noir-btn-ghost" style={{ borderColor: m.tone, color: m.tone }}>Open <ArrowRight className="w-3.5 h-3.5" /></Link>
               <button className="p-2 text-destructive hover:bg-secondary rounded" onClick={() => { deleteSession(s.id); refresh(); }}><Trash2 className="w-3.5 h-3.5" /></button>
