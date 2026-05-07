@@ -1,6 +1,6 @@
 export interface SessionEntry {
   id: string;
-  moduleType: "gen-sizing" | "voltage-dip" | "fuel" | "ats" | "ventilation";
+  moduleType: "gen-sizing" | "voltage-dip" | "fuel" | "ats" | "ventilation" | "derating" | "shortcircuit";
   projectName: string;
   inputs: unknown;
   result: unknown;
