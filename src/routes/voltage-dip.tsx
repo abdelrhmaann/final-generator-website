@@ -22,6 +22,7 @@ function Page() {
 
   const dip = r.voltageDipPercent;
   const angle = Math.min(dip / 30, 1) * 180;
+  const overflow = dip > 30;
   const tone = dip < 10 ? "var(--success)" : dip < 15 ? "var(--warning)" : "var(--destructive)";
 
   return (
