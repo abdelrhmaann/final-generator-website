@@ -84,6 +84,21 @@ function SizingPage() {
         subtitle="Step Load Method — IEC 60034 / ISO 8528"
       />
 
+      {/* Rating Type Selector */}
+      <div className="noir-card p-5 mb-6">
+        <div className="gs-section-label mb-3">ISO 8528-1 Rating Type</div>
+        <div className="grid grid-cols-3 gap-2 mb-3">
+          {(Object.keys(RATING_INFO) as RatingType[]).map((rt) => (
+            <button key={rt}
+              onClick={() => setRatingType(rt)}
+              className={`px-3 py-2.5 rounded text-sm border transition-colors ${ratingType === rt ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground"}`}>
+              {RATING_INFO[rt].label}
+            </button>
+          ))}
+        </div>
+        <p className="text-xs text-muted-foreground leading-relaxed">{ratingInfo.desc}</p>
+      </div>
+
       {/* Inputs */}
       <div className="noir-card p-5 mb-6">
         <div className="flex items-center justify-between mb-4">
