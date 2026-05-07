@@ -18,7 +18,12 @@ function Page() {
   const [project] = useProject();
   const [kw, setKw] = useState(400);
   const [lf, setLf] = useState(60);
-  const r = useMemo(() => calcFuelConsumption({ generatorKw: kw, loadFactorPercent: lf }), [kw, lf]);
+  const [useCustomSfc, setUseCustomSfc] = useState(false);
+  const [customSfc, setCustomSfc] = useState(0.28);
+  const r = useMemo(
+    () => calcFuelConsumption({ generatorKw: kw, loadFactorPercent: lf, customSfcLPerKwh: useCustomSfc ? customSfc : undefined }),
+    [kw, lf, useCustomSfc, customSfc],
+  );
 
   // expanded curve for visualization
   const curve = Array.from({ length: 21 }, (_, i) => {
@@ -46,13 +51,25 @@ function Page() {
         <div className="noir-card p-5 self-start">
           <div className="gs-section-label mb-4">Input Parameters</div>
           <div className="noir-label mb-1.5">Generator Output (kW)</div>
-          <input className="noir-input mb-4" type="number" value={kw} onChange={(e) => setKw(parseFloat(e.target.value) || 0)} />
+          <input className="noir-input mb-4" type="number" min={10} value={kw} onChange={(e) => setKw(parseFloat(e.target.value) || 0)} />
 
           <div className="noir-label mb-1.5">Load Factor (%)</div>
-          <input className="noir-input mb-2" type="number" value={lf} onChange={(e) => setLf(Math.min(100, Math.max(0, parseFloat(e.target.value) || 0)))} />
+          <input className="noir-input mb-2" type="number" min={0} max={100} value={lf} onChange={(e) => setLf(Math.min(100, Math.max(0, parseFloat(e.target.value) || 0)))} />
           <input type="range" min={0} max={100} step={1} value={lf} onChange={(e) => setLf(parseInt(e.target.value))}
             className="w-full accent-[var(--mod-fuel)]" />
           <div className="flex justify-between text-[10px] mono text-muted-foreground mb-4"><span>0%</span><span>50%</span><span>100%</span></div>
+
+          <label className="flex items-center gap-2 text-xs cursor-pointer mb-2">
+            <input type="checkbox" checked={useCustomSfc} onChange={(e) => setUseCustomSfc(e.target.checked)} />
+            <span>Use manufacturer SFC from datasheet</span>
+          </label>
+          {useCustomSfc && (
+            <>
+              <input className="noir-input mb-1" type="number" step={0.01} min={0.20} max={0.60} value={customSfc} onChange={(e) => setCustomSfc(parseFloat(e.target.value) || 0)} />
+              <p className="text-[11px] text-muted-foreground mb-3">From manufacturer Performance Data Sheet at your load factor (range 0.20–0.60 L/kWh).</p>
+              {r.sfcWarning && <p className="text-[11px] text-warning mb-3">{r.sfcWarning}</p>}
+            </>
+          )}
 
           <button className="noir-btn noir-btn-primary w-full justify-center mb-4"
             style={{ background: "linear-gradient(135deg, var(--mod-fuel), oklch(0.78 0.18 65))" }}
@@ -79,18 +96,32 @@ function Page() {
             <StatCard tone="var(--success)"     label="Load Factor" value={`${lf}%`} />
           </div>
 
+          {r.isBelowNoLoad && (
+            <div className="noir-card p-4 border-l-4 border-warning bg-warning/5">
+              <p className="text-sm text-warning leading-relaxed">
+                ⚠ Load factor is very low. Actual consumption will not drop below the no-load idle rate of approximately {r.minIdleConsumptionLPerHr.toFixed(1)} L/hr (ISO 8528-5 Annex B). Diesel generators should not run at &lt;25% load for extended periods (wet stacking risk).
+              </p>
+            </div>
+          )}
+
           <div className="noir-card p-5">
             <div className="gs-section-label mb-3">Fuel Tank Sizing — Autonomy Requirements</div>
             <div className="grid md:grid-cols-3 gap-4">
               {r.tankDimensions.map((t, i) => {
                 const tones = ["var(--success)", "var(--mod-sizing)", "var(--mod-fuel)"];
                 return (
-                  <div key={t.hours} className="gs-stat" style={{ ["--tone" as any]: tones[i] } as React.CSSProperties}>
+                  <div key={t.hours} className="gs-stat relative" style={{ ["--tone" as any]: tones[i] } as React.CSSProperties}>
+                    {t.bulkStorageRequired && (
+                      <span className="absolute top-2 right-2 px-2 py-0.5 rounded text-[9px] mono font-bold tracking-wider bg-warning/20 text-warning border border-warning/40">
+                        BULK STORAGE
+                      </span>
+                    )}
                     <div className="gs-stat-label">{t.hours}-Hour Autonomy</div>
                     <div className="gs-stat-value mt-1">{Math.round(t.liters)}<span className="gs-stat-unit">L</span></div>
                     <div className="text-[11px] text-muted-foreground mt-2">⛟ Suggested tank dimensions:</div>
                     <div className="mono text-xs mt-0.5">{t.suggestedL}m × {t.suggestedW}m × {t.suggestedH}m</div>
                     <div className="text-[10px] text-muted-foreground">(L × W × H, rectangular)</div>
+                    {t.note && <div className="text-[10px] text-warning mt-2 leading-snug">{t.note}</div>}
                   </div>
                 );
               })}

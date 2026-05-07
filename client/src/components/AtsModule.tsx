@@ -7,7 +7,7 @@ import { saveSession } from "@/lib/sessionStore";
 interface Props { projectInfo: ProjectInfo; }
 
 export default function AtsModule({ projectInfo }: Props) {
-  const [input, setInput] = useState<AtsInput>({ generatorKva: 500, loadCurrentA: 600, voltageV: 415 });
+  const [input, setInput] = useState<AtsInput>({ generatorKva: 500, loadCurrentA: 600, voltageV: 415, phases: 3 });
   const [result, setResult] = useState<AtsResult | null>(null);
 
   const calculate = () => {

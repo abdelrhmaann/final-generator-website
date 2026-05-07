@@ -152,7 +152,7 @@ function vitePluginManusDebugCollector(): Plugin {
 }
 
 const plugins = [
-  tanstackStart({ target: "cloudflare-module" }),
+  tanstackStart(),
   react(),
   tailwindcss(),
   jsxLocPlugin(),

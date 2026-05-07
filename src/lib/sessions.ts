@@ -1,6 +1,6 @@
 export interface SessionEntry {
   id: string;
-  moduleType: "gen-sizing" | "voltage-dip" | "fuel" | "ats" | "ventilation";
+  moduleType: "gen-sizing" | "voltage-dip" | "fuel" | "ats" | "ventilation" | "derating" | "shortcircuit";
   projectName: string;
   inputs: unknown;
   result: unknown;
@@ -32,10 +32,12 @@ export function clearSessions() {
   try { localStorage.removeItem(KEY); } catch { /* noop */ }
 }
 
-export const MODULE_META: Record<SessionEntry["moduleType"], { label: string; route: string; tone: string; tag: string }> = {
-  "gen-sizing":  { label: "Generator kVA Sizing", route: "/sizing",       tone: "var(--mod-sizing)", tag: "SIZING" },
-  "voltage-dip": { label: "Voltage Dip",           route: "/voltage-dip",  tone: "var(--mod-dip)",    tag: "VOLTAGE DIP" },
-  "fuel":        { label: "Fuel Consumption",      route: "/fuel",         tone: "var(--mod-fuel)",   tag: "FUEL" },
-  "ats":         { label: "ATS Sizing",            route: "/ats",          tone: "var(--mod-ats)",    tag: "ATS" },
-  "ventilation": { label: "Room Ventilation",      route: "/ventilation",  tone: "var(--mod-vent)",   tag: "VENTILATION" },
+export const MODULE_META: Record<SessionEntry["moduleType"], { label: string; route: string; tone: string; tag: string; standard: string }> = {
+  "gen-sizing":   { label: "Generator kVA Sizing", route: "/sizing",       tone: "var(--mod-sizing)",  tag: "SIZING",       standard: "ISO 8528-1" },
+  "voltage-dip":  { label: "Voltage Dip",           route: "/voltage-dip",  tone: "var(--mod-dip)",     tag: "VOLTAGE DIP",  standard: "IEC 60034" },
+  "fuel":         { label: "Fuel Consumption",      route: "/fuel",         tone: "var(--mod-fuel)",    tag: "FUEL",         standard: "ISO 8528-5" },
+  "ats":          { label: "ATS Sizing",            route: "/ats",          tone: "var(--mod-ats)",     tag: "ATS",          standard: "IEC 60947-6-1" },
+  "ventilation":  { label: "Room Ventilation",      route: "/ventilation",  tone: "var(--mod-vent)",    tag: "VENTILATION",  standard: "ISO 8528-13" },
+  "derating":     { label: "Site Derating",         route: "/derating",     tone: "var(--mod-fuel)",    tag: "DERATING",     standard: "ISO 8528-1 §12.3" },
+  "shortcircuit": { label: "Short-Circuit Isc",     route: "/shortcircuit", tone: "var(--destructive)", tag: "SHORT-CIRCUIT", standard: "IEC 60909-0" },
 };

@@ -23,8 +23,19 @@ let nid = 0;
 const newId = () => `s${++nid}-${Date.now().toString(36).slice(-4)}`;
 const defaultStep = (): LoadStep => ({ id: newId(), name: "", kw: 0, kva: 0, pf: 0.85, loadType: "inductive", startingKvaMultiplier: 1 });
 
+type RatingType = "ESP" | "PRP" | "COP";
+const RATING_INFO: Record<RatingType, { label: string; warn: number; crit: number; desc: string }> = {
+  ESP: { label: "ESP — Standby", warn: 80, crit: 90,
+    desc: "Emergency Standby — max 80% average load, ≤200 hrs/year. No sustained overload. (ISO 8528-1 §12.1)" },
+  PRP: { label: "PRP — Prime", warn: 70, crit: 80,
+    desc: "Prime Rated Power — continuous duty, 70% avg load. 10% overload for 1 hr/12 hrs available. (ISO 8528-1 §12.2)" },
+  COP: { label: "COP — Continuous", warn: 60, crit: 75,
+    desc: "Continuous Operating Power — 100% load, 8760 hrs/year. No overload permitted. (ISO 8528-1 §12.3)" },
+};
+
 function SizingPage() {
   const [project] = useProject();
+  const [ratingType, setRatingType] = useState<RatingType>("ESP");
   const [steps, setSteps] = useState<LoadStep[]>([
     { ...defaultStep(), name: "Step 1", kw: 710, kva: 835.3, pf: 0.85, loadType: "motor-dol", startingKvaMultiplier: 1 },
     { ...defaultStep(), name: "Step 2", kw: 50,  kva: 58.8,  pf: 0.85, loadType: "motor-dol", startingKvaMultiplier: 6 },
@@ -33,6 +44,7 @@ function SizingPage() {
     { ...defaultStep(), name: "Step 5", kw: 10,  kva: 11.8,  pf: 0.85, loadType: "resistive", startingKvaMultiplier: 1 },
   ]);
   const result = useMemo(() => calcGenSizing(steps), [steps]);
+  const ratingInfo = RATING_INFO[ratingType];
 
   const update = (id: string, key: keyof LoadStep, value: string | number) => {
     setSteps((prev) => prev.map((s) => {
@@ -58,8 +70,8 @@ function SizingPage() {
     Surge: Math.round(Math.max(0, s.startingKva - s.stepKva)),
   }));
 
-  const tone = result.loadingPercent > 90 ? "var(--destructive)"
-    : result.loadingPercent > 75 ? "var(--warning)" : "var(--success)";
+  const tone = result.loadingPercent > ratingInfo.crit ? "var(--destructive)"
+    : result.loadingPercent > ratingInfo.warn ? "var(--warning)" : "var(--success)";
 
   return (
     <>
@@ -71,6 +83,21 @@ function SizingPage() {
         title="Generator kVA Sizing"
         subtitle="Step Load Method — IEC 60034 / ISO 8528"
       />
+
+      {/* Rating Type Selector */}
+      <div className="noir-card p-5 mb-6">
+        <div className="gs-section-label mb-3">ISO 8528-1 Rating Type</div>
+        <div className="grid grid-cols-3 gap-2 mb-3">
+          {(Object.keys(RATING_INFO) as RatingType[]).map((rt) => (
+            <button key={rt}
+              onClick={() => setRatingType(rt)}
+              className={`px-3 py-2.5 rounded text-sm border transition-colors ${ratingType === rt ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground"}`}>
+              {RATING_INFO[rt].label}
+            </button>
+          ))}
+        </div>
+        <p className="text-xs text-muted-foreground leading-relaxed">{ratingInfo.desc}</p>
+      </div>
 
       {/* Inputs */}
       <div className="noir-card p-5 mb-6">
@@ -133,14 +160,20 @@ function SizingPage() {
         </div>
         <div className="flex justify-between mt-1.5 text-[10px] mono text-muted-foreground">
           <span>0%</span>
-          <span className="text-warning">75% (Recommended max)</span>
-          <span className="text-destructive">100%</span>
+          <span className="text-warning">{ratingInfo.warn}% (Recommended max)</span>
+          <span className="text-destructive">{ratingInfo.crit}%+</span>
         </div>
-        {result.loadingPercent > 90 && (
-          <div className="mt-3 flex items-center gap-2 text-destructive text-sm">
-            <AlertTriangle className="w-4 h-4" /> Generator loading exceeds 90%. Consider upsizing.
+        {result.loadingPercent > ratingInfo.crit ? (
+          <div className="mt-3 flex items-start gap-2 text-destructive text-sm">
+            <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
+            <span>Loading exceeds {ratingInfo.crit}% — generator will likely trip on first motor start. Upsize immediately.</span>
           </div>
-        )}
+        ) : result.loadingPercent > ratingInfo.warn ? (
+          <div className="mt-3 flex items-start gap-2 text-warning text-sm">
+            <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
+            <span>Loading exceeds {ratingInfo.warn}% — exceeds ISO 8528-1 {ratingType} continuous limit. Consider the next standard size.</span>
+          </div>
+        ) : null}
       </div>
 
       {/* Chart */}

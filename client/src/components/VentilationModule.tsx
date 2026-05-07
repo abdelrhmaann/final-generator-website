@@ -7,7 +7,7 @@ import { saveSession } from "@/lib/sessionStore";
 interface Props { projectInfo: ProjectInfo; }
 
 export default function VentilationModule({ projectInfo }: Props) {
-  const [input, setInput] = useState<VentInput>({ generatorKw: 400, roomL: 8, roomW: 5, roomH: 3.5 });
+  const [input, setInput] = useState<VentInput>({ generatorKw: 400, roomL: 8, roomW: 5, roomH: 3.5, coolingConfig: "radiator-in-room" });
   const [result, setResult] = useState<VentResult | null>(null);
 
   const calculate = () => {

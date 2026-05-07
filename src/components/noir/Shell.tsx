@@ -1,5 +1,5 @@
 import { Link, useLocation, Outlet } from "@tanstack/react-router";
-import { Zap, Gauge, Fuel, ArrowLeftRight, Wind, History, BookOpen, FileDown } from "lucide-react";
+import { Zap, Gauge, Fuel, ArrowLeftRight, Wind, History, BookOpen, FileDown, Thermometer, Bolt } from "lucide-react";
 
 const MODULES = [
   { to: "/sizing",       label: "Generator kVA Sizing", icon: Zap,            tone: "var(--mod-sizing)", tag: "Generator kVA Sizing" },
@@ -7,6 +7,8 @@ const MODULES = [
   { to: "/fuel",         label: "Fuel Consumption",     icon: Fuel,           tone: "var(--mod-fuel)",   tag: "Fuel Consumption" },
   { to: "/ats",          label: "ATS / Change-Over",    icon: ArrowLeftRight, tone: "var(--mod-ats)",    tag: "ATS / Change-Over" },
   { to: "/ventilation",  label: "Room Ventilation",     icon: Wind,           tone: "var(--mod-vent)",   tag: "Room Ventilation" },
+  { to: "/derating",     label: "Site Derating",        icon: Thermometer,    tone: "var(--mod-fuel)",   tag: "Site Derating" },
+  { to: "/shortcircuit", label: "Short-Circuit Isc",    icon: Bolt,           tone: "var(--destructive)", tag: "Short-Circuit Isc" },
 ] as const;
 
 const TOOLS = [
@@ -93,7 +95,28 @@ export function Shell() {
         <div className="px-6 lg:px-10 py-8 max-w-7xl mx-auto">
           <Outlet />
         </div>
+        <StandardsFooter pathname={pathname} />
       </main>
+    </div>
+  );
+}
+
+const STANDARDS_BY_ROUTE: Record<string, string> = {
+  "/sizing":       "ISO 8528-1 — Generator kVA Sizing via Step Load Method",
+  "/voltage-dip":  "IEC 60034 §8.1 — Voltage Dip (Vdip% = Sm / (Sg/X″d + Sm) × 100)",
+  "/fuel":         "ISO 8528-5 Annex B — Specific Fuel Consumption (SFC) Curve",
+  "/ats":          "IEC 60947-6-1 / ISO 8528-4 — ATS Current Rating",
+  "/ventilation":  "ISO 8528-13 §5.2 — Generator Room Heat Rejection & Ventilation",
+  "/derating":     "ISO 8528-1 §12.3 — Site Derating (Temperature & Altitude)",
+  "/shortcircuit": "IEC 60909-0 — Short-Circuit Current Calculation",
+};
+
+function StandardsFooter({ pathname }: { pathname: string }) {
+  const txt = STANDARDS_BY_ROUTE[pathname];
+  if (!txt) return null;
+  return (
+    <div className="border-t border-border px-6 lg:px-10 py-3 mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+      {txt}
     </div>
   );
 }

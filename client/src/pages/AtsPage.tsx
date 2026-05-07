@@ -7,7 +7,7 @@ export default function AtsPage() {
   const [loadA, setLoadA] = useState(600);
   const [voltage, setVoltage] = useState(400);
 
-  const result = useMemo(() => calcAtsSizing({ generatorKva: genKva, loadCurrentA: loadA, voltageV: voltage }), [genKva, loadA, voltage]);
+  const result = useMemo(() => calcAtsSizing({ generatorKva: genKva, loadCurrentA: loadA, voltageV: voltage, phases: 3 }), [genKva, loadA, voltage]);
 
   return (
     <>

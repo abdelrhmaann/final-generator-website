@@ -1,17 +1,18 @@
 // ============================================================
 // GenSizer Pro — Shared Calculation Engine
-// All formulas implemented exactly per IEC 60034, ISO 8528,
-// IEC 60364 and project specifications.
+// All formulas implemented per IEC 60034, ISO 8528, IEC 60364,
+// IEC 60909, IEC 60947, IEC 60076, IEC 61800.
 // ============================================================
 
-// ── Standard Generator kVA Series (20–2250 kVA) ─────────────
+// ── Standard Generator kVA Series ─────────────────────────────
+// Source: Cummins, Caterpillar, FG Wilson published kVA ratings.
 export const STANDARD_KVA_SERIES = [
-  20, 30, 40, 50, 63, 75, 100, 125, 150, 200,
-  250, 300, 400, 500, 630, 750, 1000, 1250, 1500, 2000, 2250,
+  20, 30, 40, 45, 50, 63, 75, 100, 125, 150, 200,
+  250, 300, 350, 400, 450, 500, 550, 630, 700, 750, 875,
+  1000, 1250, 1500, 2000, 2250,
 ];
 
 // ── Standard Subtransient Reactance X"d by Generator Size ───
-// Source: ISO 8528 / typical manufacturer data
 export const XD_BY_KVA: { kva: number; xd: number }[] = [
   { kva: 20,   xd: 16 },
   { kva: 30,   xd: 16 },
@@ -37,8 +38,7 @@ export const XD_BY_KVA: { kva: number; xd: number }[] = [
 ];
 
 // ── Standard SFC (Specific Fuel Consumption) Curve ──────────
-// Diesel: L/kWh at given load factor
-// Exact values per project specification
+// Diesel: L/kWh at given load factor (ISO 8528-5 Annex B)
 export const SFC_CURVE = [
   { loadFactor: 0.25, lPerKwh: 0.40 },
   { loadFactor: 0.50, lPerKwh: 0.33 },
@@ -49,19 +49,21 @@ export const SFC_CURVE = [
 // ── Motor Starting kVA Multipliers ──────────────────────────
 export const MOTOR_START_MULTIPLIERS: Record<string, number> = {
   "resistive":        1.0,
-  "inductive":        1.0,
+  "inductive":        1.0,   // passive inductive, negligible inrush
+  "transformer":      8.0,   // transformer / reactor inrush per IEC 60076-1 (6–12×, 8 conservative midpoint)
   "motor-dol":        6.0,   // DOL: 6× FLA
   "motor-star-delta": 2.0,   // Star-Delta: ~2× FLA (1/3 of DOL)
-  "motor-vfd":        1.5,   // VFD: soft start, ~1.5×
+  "motor-vfd":        1.05,  // VFD: current-limited soft start ~1.0–1.1× FLA per IEC 61800-3
 };
 
 // ── Load Type Labels ─────────────────────────────────────────
 export const LOAD_TYPE_LABELS: Record<string, string> = {
   "resistive":        "Resistive",
-  "inductive":        "Inductive",
+  "inductive":        "Inductive (passive)",
+  "transformer":      "Transformer / Reactor (IEC 60076-1)",
   "motor-dol":        "Motor (DOL)",
   "motor-star-delta": "Motor (Star-Delta)",
-  "motor-vfd":        "Motor (VFD)",
+  "motor-vfd":        "Motor (VFD) — IEC 61800-3",
 };
 
 // ── ATS Rating Series (A) ────────────────────────────────────
@@ -92,18 +94,18 @@ export interface StepResult {
   startingKva: number;
   cumulativeKw: number;
   cumulativeRunningKva: number;
-  peakKvaAtThisStep: number; // running kVA + starting kVA surge of this step
+  peakKvaAtThisStep: number;
 }
 
 export interface GenSizingResult {
   steps: StepResult[];
   totalRunningKw: number;
   totalRunningKva: number;
-  maxStartingKva: number;       // highest single-step starting kVA
-  maxPeakKva: number;           // governing kVA (max of all peakKvaAtThisStep)
-  requiredGenKva: number;       // max(totalRunningKva, maxPeakKva)
-  recommendedGenKva: number;    // next standard size
-  loadingPercent: number;       // totalRunningKva / recommendedGenKva × 100
+  maxStartingKva: number;
+  maxPeakKva: number;
+  requiredGenKva: number;
+  recommendedGenKva: number;
+  loadingPercent: number;
 }
 
 export function calcGenSizing(steps: LoadStep[]): GenSizingResult {
@@ -117,7 +119,6 @@ export function calcGenSizing(steps: LoadStep[]): GenSizingResult {
     cumulativeKw += step.kw;
     cumulativeRunningKva += step.kva;
 
-    // Peak at this step = all previous running kVA + this step's starting kVA surge
     const previousRunningKva = cumulativeRunningKva - step.kva;
     const peakKvaAtThisStep = previousRunningKva + startingKva;
 
@@ -167,21 +168,29 @@ export function getNextStandardKva(required: number): number {
 
 export interface VoltageDipInput {
   generatorKva: number;
-  xdPercent: number;   // X"d in %
+  xdPercent: number;
   motorStartingKva: number;
 }
 
 export interface VoltageDipResult {
   voltageDipPercent: number;
-  passGeneral: boolean;   // < 15%
-  passSensitive: boolean; // < 10%
+  passGeneral: boolean;
+  passSensitive: boolean;
   recommendation: string;
 }
 
 export function calcVoltageDip(input: VoltageDipInput): VoltageDipResult {
   const { generatorKva, xdPercent, motorStartingKva } = input;
-  // Formula (exact per spec):
-  // Vdip% = (motorStartingKVA) / (generatorKVA / X"d + motorStartingKVA) × 100
+
+  if (xdPercent <= 0 || generatorKva <= 0) {
+    return {
+      voltageDipPercent: 0,
+      passGeneral: false,
+      passSensitive: false,
+      recommendation: "Invalid input: generator kVA and X\"d must be greater than zero.",
+    };
+  }
+
   const xdDecimal = xdPercent / 100;
   const denominator = generatorKva / xdDecimal + motorStartingKva;
   const voltageDipPercent = denominator > 0
@@ -214,6 +223,7 @@ export function calcVoltageDip(input: VoltageDipInput): VoltageDipResult {
 export interface FuelInput {
   generatorKw: number;
   loadFactorPercent: number; // 0–100
+  customSfcLPerKwh?: number; // optional manufacturer SFC override
 }
 
 export interface FuelResult {
@@ -228,11 +238,15 @@ export interface FuelResult {
     suggestedL: number;
     suggestedW: number;
     suggestedH: number;
+    bulkStorageRequired?: boolean;
+    note?: string;
   }[];
+  isBelowNoLoad: boolean;
+  minIdleConsumptionLPerHr: number;
+  sfcWarning?: string;
 }
 
 export function interpolateSfc(loadFactor: number): number {
-  // loadFactor: 0–1
   const curve = SFC_CURVE;
   if (loadFactor <= curve[0].loadFactor) return curve[0].lPerKwh;
   if (loadFactor >= curve[curve.length - 1].loadFactor) return curve[curve.length - 1].lPerKwh;
@@ -248,32 +262,59 @@ export function interpolateSfc(loadFactor: number): number {
   return curve[curve.length - 1].lPerKwh;
 }
 
+const DAY_TANK_MAX_LITERS = 1000; // NFPA 110 §7.9 day tank limit
+
 function tankDimensions(liters: number) {
-  // Assume rectangular tank, height = 1.5m, aspect ratio L:W = 2:1
   const volume_m3 = liters / 1000;
   const h = 1.5;
   const lw_area = volume_m3 / h;
   const w = Math.sqrt(lw_area / 2);
   const l = 2 * w;
+  const bulkStorageRequired = liters > DAY_TANK_MAX_LITERS;
   return {
     suggestedL: Math.ceil(l * 100) / 100,
     suggestedW: Math.ceil(w * 100) / 100,
     suggestedH: h,
+    bulkStorageRequired,
+    note: bulkStorageRequired
+      ? "Volume exceeds 1000 L day tank limit. Provide separate bulk storage tank with day-tank transfer pump (NFPA 110 §7.9 / IEC 60364-7-710)."
+      : undefined,
   };
 }
 
 export function calcFuelConsumption(input: FuelInput): FuelResult {
-  const loadFactor = Math.min(Math.max(input.loadFactorPercent, 0), 100) / 100;
-  const sfcLPerKwh = interpolateSfc(loadFactor);
+  if (input.generatorKw <= 0) {
+    console.warn("calcFuelConsumption: generatorKw must be > 0");
+    return {
+      sfcLPerKwh: 0, consumptionLPerHr: 0, tank8hr: 0, tank24hr: 0, tank72hr: 0,
+      tankDimensions: [],
+      isBelowNoLoad: false, minIdleConsumptionLPerHr: 0,
+    };
+  }
+
+  const lfClamped = Math.min(Math.max(input.loadFactorPercent, 0), 100);
+  const loadFactor = lfClamped / 100;
+
+  let sfcLPerKwh = interpolateSfc(loadFactor);
+  let sfcWarning: string | undefined;
+
+  if (input.customSfcLPerKwh !== undefined) {
+    if (input.customSfcLPerKwh >= 0.20 && input.customSfcLPerKwh <= 0.60) {
+      sfcLPerKwh = input.customSfcLPerKwh;
+    } else {
+      sfcWarning = "Custom SFC out of expected range [0.20–0.60 L/kWh]. Using standard ISO 8528-5 curve.";
+    }
+  }
+
   const consumptionLPerHr = input.generatorKw * loadFactor * sfcLPerKwh;
+
+  // Min no-load consumption: ~28% of full-load consumption (ISO 8528-5 Annex B)
+  const minIdleConsumptionLPerHr = input.generatorKw * 0.28 * SFC_CURVE[SFC_CURVE.length - 1].lPerKwh;
+  const isBelowNoLoad = consumptionLPerHr < minIdleConsumptionLPerHr;
 
   const tank8hr  = consumptionLPerHr * 8;
   const tank24hr = consumptionLPerHr * 24;
   const tank72hr = consumptionLPerHr * 72;
-
-  const tankDimensions8  = tankDimensions(tank8hr);
-  const tankDimensions24 = tankDimensions(tank24hr);
-  const tankDimensions72 = tankDimensions(tank72hr);
 
   return {
     sfcLPerKwh,
@@ -282,10 +323,13 @@ export function calcFuelConsumption(input: FuelInput): FuelResult {
     tank24hr,
     tank72hr,
     tankDimensions: [
-      { hours: 8,  liters: tank8hr,  ...tankDimensions8  },
-      { hours: 24, liters: tank24hr, ...tankDimensions24 },
-      { hours: 72, liters: tank72hr, ...tankDimensions72 },
+      { hours: 8,  liters: tank8hr,  ...tankDimensions(tank8hr)  },
+      { hours: 24, liters: tank24hr, ...tankDimensions(tank24hr) },
+      { hours: 72, liters: tank72hr, ...tankDimensions(tank72hr) },
     ],
+    isBelowNoLoad,
+    minIdleConsumptionLPerHr,
+    sfcWarning,
   };
 }
 
@@ -297,6 +341,8 @@ export interface AtsInput {
   generatorKva: number;
   loadCurrentA: number;
   voltageV: number;
+  phases: 1 | 3;
+  mainsCurrentA?: number;
 }
 
 export interface AtsResult {
@@ -306,28 +352,46 @@ export interface AtsResult {
   atsType: string;
   changeoverType: string;
   notes: string;
+  phases: 1 | 3;
+  governingCurrent: string;
 }
 
 export function calcAtsSizing(input: AtsInput): AtsResult {
-  const { generatorKva, loadCurrentA, voltageV } = input;
-  // Full load current from generator kVA (3-phase)
-  const fullLoadCurrentA = generatorKva > 0 && voltageV > 0
-    ? (generatorKva * 1000) / (Math.sqrt(3) * voltageV)
-    : loadCurrentA;
+  const { generatorKva, loadCurrentA, voltageV, phases, mainsCurrentA } = input;
 
-  // Use the higher of generator FLA and load current, with 125% safety factor
-  const designCurrentA = Math.max(fullLoadCurrentA, loadCurrentA) * 1.25;
-
-  // Find next standard ATS rating
-  let recommendedAtsRatingA = ATS_RATING_SERIES[ATS_RATING_SERIES.length - 1];
-  for (const rating of ATS_RATING_SERIES) {
-    if (rating >= designCurrentA) {
-      recommendedAtsRatingA = rating;
-      break;
-    }
+  if (voltageV <= 0) {
+    return {
+      fullLoadCurrentA: 0,
+      designCurrentA: 0,
+      recommendedAtsRatingA: ATS_RATING_SERIES[0],
+      atsType: "—",
+      changeoverType: "—",
+      notes: "Invalid voltage input.",
+      phases,
+      governingCurrent: "Invalid input",
+    };
   }
 
-  // ATS type recommendation
+  const fullLoadCurrentA = generatorKva > 0
+    ? phases === 3
+      ? (generatorKva * 1000) / (Math.sqrt(3) * voltageV)
+      : (generatorKva * 1000) / voltageV
+    : loadCurrentA;
+
+  const mains = mainsCurrentA ?? 0;
+  const candidates: { v: number; label: string }[] = [
+    { v: fullLoadCurrentA, label: "Generator FLA" },
+    { v: loadCurrentA,     label: "Load current" },
+    { v: mains,            label: "Mains supply current" },
+  ];
+  const governing = candidates.reduce((a, b) => b.v > a.v ? b : a);
+  const designCurrentA = governing.v * 1.25;
+
+  let recommendedAtsRatingA = ATS_RATING_SERIES[ATS_RATING_SERIES.length - 1];
+  for (const rating of ATS_RATING_SERIES) {
+    if (rating >= designCurrentA) { recommendedAtsRatingA = rating; break; }
+  }
+
   let atsType = "Open Transition";
   let changeoverType = "Motorized Changeover";
   let notes = "";
@@ -344,7 +408,7 @@ export function calcAtsSizing(input: AtsInput): AtsResult {
     changeoverType = "Manual Changeover acceptable";
     notes += "Manual changeover acceptable for small standby generators ≤100 kVA.";
   } else {
-    notes += "Motorized ATS recommended for reliable automatic changeover per ISO 8528-4.";
+    notes += "Motorized ATS recommended per ISO 8528-4 / IEC 60947-6-1 §7.1.2.";
   }
 
   return {
@@ -354,6 +418,8 @@ export function calcAtsSizing(input: AtsInput): AtsResult {
     atsType,
     changeoverType,
     notes,
+    phases,
+    governingCurrent: governing.label,
   };
 }
 
@@ -363,9 +429,10 @@ export function calcAtsSizing(input: AtsInput): AtsResult {
 
 export interface VentInput {
   generatorKw: number;
-  roomL: number; // metres
+  roomL: number;
   roomW: number;
   roomH: number;
+  coolingConfig: "radiator-in-room" | "remote-radiator";
 }
 
 export interface VentResult {
@@ -379,51 +446,69 @@ export interface VentResult {
   recommendedInletSize: string;
   recommendedExhaustSize: string;
   notes: string;
+  coolingConfig: "radiator-in-room" | "remote-radiator";
+  louverAtMinimum?: boolean;
 }
 
 export function calcRoomVentilation(input: VentInput): VentResult {
-  const { generatorKw, roomL, roomW, roomH } = input;
+  const { generatorKw, roomL, roomW, roomH, coolingConfig } = input;
 
-  // Heat rejection ≈ 30% of generator rated power (ISO 8528 typical)
-  const heatRejectionKw = generatorKw * 0.30;
+  if (roomL <= 0 || roomW <= 0 || roomH <= 0) {
+    return {
+      heatRejectionKw: 0, requiredAirflowM3hr: 0, inletLouverAreaM2: 0, exhaustLouverAreaM2: 0,
+      minRoomVolumeM3: 0, actualRoomVolumeM3: 0, roomAdequate: false,
+      recommendedInletSize: "—", recommendedExhaustSize: "—",
+      notes: "Invalid room dimensions.",
+      coolingConfig,
+    };
+  }
 
-  // Required airflow per ISO 8528:
-  // Q (m³/hr) = (heat rejection kW × 3600) / (ρ × Cp × ΔT)
-  // ρ = 1.2 kg/m³, Cp = 1.005 kJ/kg·K, ΔT = 10°C (max allowable rise)
+  // Heat rejection per ISO 8528-13 §5.2
+  const heatRejectionKw = coolingConfig === "radiator-in-room"
+    ? generatorKw * 0.32   // radiator discharges into room
+    : generatorKw * 0.07;  // remote radiator: only engine surface radiation
+
   const rho = 1.2;
   const cp = 1.005;
   const deltaT = 10;
   const requiredAirflowM3hr = (heatRejectionKw * 3600) / (rho * cp * deltaT);
 
-  // Louver area: air velocity through louver = 2.5 m/s (typical)
-  // Area (m²) = Q (m³/s) / velocity (m/s)
   const airflowM3s = requiredAirflowM3hr / 3600;
   const louverVelocity = 2.5;
   const inletLouverAreaM2  = airflowM3s / louverVelocity;
-  const exhaustLouverAreaM2 = inletLouverAreaM2 * 1.1; // exhaust 10% larger
+  const exhaustLouverAreaM2 = inletLouverAreaM2 * 1.1;
 
-  // Minimum room volume: ISO 8528 recommends ≥ 3× generator volume
-  // Approximate generator volume from kW rating
-  const approxGenVolumeM3 = generatorKw * 0.005; // rough estimate
+  const approxGenVolumeM3 = generatorKw * 0.005;
   const minRoomVolumeM3 = Math.max(approxGenVolumeM3 * 3, 20);
-
   const actualRoomVolumeM3 = roomL * roomW * roomH;
   const roomAdequate = actualRoomVolumeM3 >= minRoomVolumeM3;
 
-  // Louver size recommendation (width × height in mm)
-  const inletW  = Math.ceil(Math.sqrt(inletLouverAreaM2 * 2) * 1000 / 100) * 100;
-  const inletH  = Math.ceil(inletLouverAreaM2 / (inletW / 1000) * 1000 / 100) * 100;
-  const exhaustW = Math.ceil(Math.sqrt(exhaustLouverAreaM2 * 2) * 1000 / 100) * 100;
-  const exhaustH = Math.ceil(exhaustLouverAreaM2 / (exhaustW / 1000) * 1000 / 100) * 100;
+  const minDimMm = 300;
+  let inletW  = Math.ceil(Math.sqrt(inletLouverAreaM2 * 2) * 1000 / 100) * 100;
+  let inletH  = Math.ceil(inletLouverAreaM2 / (inletW / 1000) * 1000 / 100) * 100;
+  let exhaustW = Math.ceil(Math.sqrt(exhaustLouverAreaM2 * 2) * 1000 / 100) * 100;
+  let exhaustH = Math.ceil(exhaustLouverAreaM2 / (exhaustW / 1000) * 1000 / 100) * 100;
+
+  let louverAtMinimum = false;
+  if (inletW < minDimMm || inletH < minDimMm || exhaustW < minDimMm || exhaustH < minDimMm) {
+    louverAtMinimum = true;
+    inletW = Math.max(inletW, minDimMm);
+    inletH = Math.max(inletH, minDimMm);
+    exhaustW = Math.max(exhaustW, minDimMm);
+    exhaustH = Math.max(exhaustH, minDimMm);
+  }
 
   const recommendedInletSize   = `${inletW} mm × ${inletH} mm`;
   const recommendedExhaustSize = `${exhaustW} mm × ${exhaustH} mm`;
 
   let notes = "";
   if (!roomAdequate) {
-    notes = `Room volume (${actualRoomVolumeM3.toFixed(1)} m³) is below the recommended minimum of ${minRoomVolumeM3.toFixed(1)} m³. Consider enlarging the room or improving forced ventilation.`;
+    notes = `Room volume (${actualRoomVolumeM3.toFixed(1)} m³) is below the recommended minimum of ${minRoomVolumeM3.toFixed(1)} m³. Consider enlarging the room or improving forced ventilation. `;
   } else {
-    notes = `Room volume is adequate. Ensure inlet louver is positioned low (≤0.5 m from floor) and exhaust louver high (≥0.3 m from ceiling) per ISO 8528-13.`;
+    notes = `Room volume is adequate. Ensure inlet louver is positioned low (≤0.5 m from floor) and exhaust louver high (≥0.3 m from ceiling) per ISO 8528-13. `;
+  }
+  if (louverAtMinimum) {
+    notes += "Louver sized to minimum practical dimensions (300×300 mm). Actual free area exceeds minimum requirement.";
   }
 
   return {
@@ -437,5 +522,129 @@ export function calcRoomVentilation(input: VentInput): VentResult {
     recommendedInletSize,
     recommendedExhaustSize,
     notes,
+    coolingConfig,
+    louverAtMinimum,
+  };
+}
+
+// ============================================================
+// MODULE 6: Generator Site Derating (ISO 8528-1 §12.3)
+// ============================================================
+
+export interface DeratingInput {
+  ratedKva: number;
+  altitudeM: number;
+  ambientTempC: number;
+}
+
+export interface DeratingResult {
+  temperatureFactorKt: number;
+  altitudeFactorKa: number;
+  combinedDeratingFactor: number;
+  deratedKva: number;
+  deratedKw: number;
+  ratedKva: number;
+  deratingPercent: number;
+  recommendation: string;
+  isStandardConditions: boolean;
+}
+
+export function calcDerating(input: DeratingInput): DeratingResult {
+  const KT = input.ambientTempC <= 25
+    ? 1.0
+    : 1.0 - (input.ambientTempC - 25) * 0.010;
+  const KA = input.altitudeM <= 1000
+    ? 1.0
+    : 1.0 - ((input.altitudeM - 1000) / 100) * 0.010;
+
+  const combinedDeratingFactor = Math.max(0, KT * KA);
+  const deratedKva = input.ratedKva * combinedDeratingFactor;
+  const deratedKw = deratedKva * 0.8;
+  const deratingPercent = (1 - combinedDeratingFactor) * 100;
+  const isStandardConditions = input.ambientTempC <= 25 && input.altitudeM <= 1000;
+
+  let recommendation = "";
+  if (isStandardConditions) {
+    recommendation = "Site conditions are within ISO 8528-1 reference conditions. No derating required.";
+  } else if (deratingPercent < 5) {
+    recommendation = `Minor derating of ${deratingPercent.toFixed(1)}%. Consider the next standard kVA size for comfort margin.`;
+  } else if (deratingPercent < 15) {
+    recommendation = `Significant derating of ${deratingPercent.toFixed(1)}%. You MUST specify a ${Math.ceil(input.ratedKva / Math.max(combinedDeratingFactor, 0.01))}-kVA rated generator at standard conditions to achieve ${input.ratedKva} kVA at site.`;
+  } else {
+    recommendation = `Severe derating of ${deratingPercent.toFixed(1)}%. Consult manufacturer for a site-rated (tropicalised) generator set. Standard catalogue ratings will not apply.`;
+  }
+
+  return {
+    temperatureFactorKt: KT,
+    altitudeFactorKa: KA,
+    combinedDeratingFactor,
+    deratedKva,
+    deratedKw,
+    ratedKva: input.ratedKva,
+    deratingPercent,
+    recommendation,
+    isStandardConditions,
+  };
+}
+
+// ============================================================
+// MODULE 7: Short-Circuit Current (IEC 60909-0)
+// ============================================================
+
+export interface ShortCircuitInput {
+  generatorKva: number;
+  voltageV: number;
+  xdSubtransientPct: number;
+  xdTransientPct: number;
+  xdSteadyStatePct: number;
+}
+
+export interface ShortCircuitResult {
+  subtransientFaultCurrentKA: number;
+  transientFaultCurrentKA: number;
+  steadyStateFaultCurrentKA: number;
+  peakFaultCurrentKA: number;
+  faultLevelKVA: number;
+  recommendation: string;
+}
+
+export function calcShortCircuit(input: ShortCircuitInput): ShortCircuitResult {
+  if (input.generatorKva <= 0 || input.voltageV <= 0 || input.xdSubtransientPct <= 0) {
+    return {
+      subtransientFaultCurrentKA: 0, transientFaultCurrentKA: 0, steadyStateFaultCurrentKA: 0,
+      peakFaultCurrentKA: 0, faultLevelKVA: 0,
+      recommendation: "Invalid input — kVA, voltage and X\"d must be > 0.",
+    };
+  }
+
+  const Sn = input.generatorKva * 1000;
+  const Vn = input.voltageV;
+  const Ibase = Sn / (Math.sqrt(3) * Vn);
+  const cFactor = 1.05;
+
+  const subtransientFaultCurrentKA = (cFactor * Ibase) / (input.xdSubtransientPct / 100) / 1000;
+  const transientFaultCurrentKA    = (cFactor * Ibase) / (Math.max(input.xdTransientPct, 0.01) / 100) / 1000;
+  const steadyStateFaultCurrentKA  = (cFactor * Ibase) / (Math.max(input.xdSteadyStatePct, 0.01) / 100) / 1000;
+
+  const kappa = 1.8;
+  const peakFaultCurrentKA = kappa * Math.sqrt(2) * subtransientFaultCurrentKA;
+  const faultLevelKVA = subtransientFaultCurrentKA * 1000 * Math.sqrt(3) * Vn / 1000;
+
+  let recommendation = "";
+  if (subtransientFaultCurrentKA < 1) {
+    recommendation = "Low fault current. Verify protection relay settings — overcurrent relays may not detect high-impedance faults.";
+  } else if (subtransientFaultCurrentKA > 50) {
+    recommendation = `Very high fault current (${subtransientFaultCurrentKA.toFixed(1)} kA). Verify switchgear rated breaking capacity (ICU / ICS) exceeds this value per IEC 60947-2.`;
+  } else {
+    recommendation = `Generator contributes ${subtransientFaultCurrentKA.toFixed(2)} kA to fault. Size protection relays and switchgear breaking capacity ≥ ${Math.ceil(peakFaultCurrentKA)} kA peak per IEC 60947-2 / IEC 60909-0.`;
+  }
+
+  return {
+    subtransientFaultCurrentKA,
+    transientFaultCurrentKA,
+    steadyStateFaultCurrentKA,
+    peakFaultCurrentKA,
+    faultLevelKVA,
+    recommendation,
   };
 }

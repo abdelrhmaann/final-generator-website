@@ -19,7 +19,11 @@ function Page() {
   const [l, setL] = useState(8);
   const [w, setW] = useState(5);
   const [h, setH] = useState(3.5);
-  const r = useMemo(() => calcRoomVentilation({ generatorKw: kw, roomL: l, roomW: w, roomH: h }), [kw, l, w, h]);
+  const [coolingConfig, setCoolingConfig] = useState<"radiator-in-room" | "remote-radiator">("radiator-in-room");
+  const r = useMemo(
+    () => calcRoomVentilation({ generatorKw: kw, roomL: l, roomW: w, roomH: h, coolingConfig }),
+    [kw, l, w, h, coolingConfig],
+  );
 
   return (
     <>
@@ -30,16 +34,30 @@ function Page() {
         <div className="noir-card p-5 self-start">
           <div className="gs-section-label mb-4">Input Parameters</div>
           <div className="noir-label mb-1.5">Generator Rating (kW)</div>
-          <input className="noir-input mb-4" type="number" value={kw} onChange={(e) => setKw(parseFloat(e.target.value) || 0)} />
+          <input className="noir-input mb-4" type="number" min={10} value={kw} onChange={(e) => setKw(parseFloat(e.target.value) || 0)} />
+
+          <div className="noir-label mb-2">Cooling Configuration</div>
+          <div className="grid grid-cols-2 gap-2 mb-1">
+            {(["radiator-in-room", "remote-radiator"] as const).map((c) => (
+              <button key={c}
+                onClick={() => setCoolingConfig(c)}
+                className={`px-2 py-2 rounded text-[11px] border transition-colors ${coolingConfig === c ? "border-primary bg-primary/15 text-primary" : "border-border text-muted-foreground"}`}>
+                {c === "radiator-in-room" ? "Radiator in Room" : "Remote Radiator"}
+              </button>
+            ))}
+          </div>
+          <p className="text-[11px] text-muted-foreground mb-4 leading-snug">
+            Radiator in Room: cooling air exits directly into generator room. Remote Radiator: cooling air ducted externally — only engine surface radiation heats the room. ISO 8528-13 §5.2
+          </p>
 
           <div className="noir-label mb-2">Room Dimensions</div>
           <div className="grid grid-cols-3 gap-2 mb-1">
             <Lbl>Length (m)</Lbl><Lbl>Width (m)</Lbl><Lbl>Height (m)</Lbl>
           </div>
           <div className="grid grid-cols-3 gap-2 mb-2">
-            <input className="noir-input" type="number" step={0.1} value={l} onChange={(e) => setL(parseFloat(e.target.value) || 0)} />
-            <input className="noir-input" type="number" step={0.1} value={w} onChange={(e) => setW(parseFloat(e.target.value) || 0)} />
-            <input className="noir-input" type="number" step={0.1} value={h} onChange={(e) => setH(parseFloat(e.target.value) || 0)} />
+            <input className="noir-input" type="number" step={0.1} min={0.5} value={l} onChange={(e) => setL(parseFloat(e.target.value) || 0)} />
+            <input className="noir-input" type="number" step={0.1} min={0.5} value={w} onChange={(e) => setW(parseFloat(e.target.value) || 0)} />
+            <input className="noir-input" type="number" step={0.1} min={0.5} value={h} onChange={(e) => setH(parseFloat(e.target.value) || 0)} />
           </div>
           <div className="text-[11px] text-muted-foreground mb-4">Volume: {(l * w * h).toFixed(1)} m³</div>
 
