@@ -36,7 +36,7 @@ function Page() {
           <div className="gs-section-label mb-4">Input Parameters</div>
 
           <Field label="Generator Rating (kVA)">
-            <input className="noir-input" type="number" value={genKva} onChange={(e) => setGenKva(parseFloat(e.target.value) || 0)} />
+            <input className="noir-input" type="number" min={10} value={genKva} onChange={(e) => setGenKva(parseFloat(e.target.value) || 0)} />
             <div className="flex flex-wrap gap-1.5 mt-2">
               {STANDARD_KVA_SERIES.map((k) => {
                 const match = XD_BY_KVA.find((x) => x.kva === k);
