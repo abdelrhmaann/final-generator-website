@@ -18,7 +18,12 @@ function Page() {
   const [project] = useProject();
   const [kw, setKw] = useState(400);
   const [lf, setLf] = useState(60);
-  const r = useMemo(() => calcFuelConsumption({ generatorKw: kw, loadFactorPercent: lf }), [kw, lf]);
+  const [useCustomSfc, setUseCustomSfc] = useState(false);
+  const [customSfc, setCustomSfc] = useState(0.28);
+  const r = useMemo(
+    () => calcFuelConsumption({ generatorKw: kw, loadFactorPercent: lf, customSfcLPerKwh: useCustomSfc ? customSfc : undefined }),
+    [kw, lf, useCustomSfc, customSfc],
+  );
 
   // expanded curve for visualization
   const curve = Array.from({ length: 21 }, (_, i) => {
