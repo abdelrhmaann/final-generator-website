@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RevitAddIns>
-  <AddIn Type="Command">
-    <Text>Convert Lines to Conduit</Text>
-    <Description>Converts selected lines to conduits and connects to junction boxes.</Description>
+  <AddIn Type="Application">
+    <Name>Revit Conduit Addin</Name>
     <Assembly>RevitConduitAddin.dll</Assembly>
-    <FullClassName>RevitConduitAddin.ConvertLinesToConduitCommand</FullClassName>
+    <FullClassName>RevitConduitAddin.App</FullClassName>
     <ClientId>a7e4b9c1-3d2f-4a5b-8c9d-e1f2a3b4c5d6</ClientId>
     <VendorId>MANUS</VendorId>
     <VendorDescription>Manus AI, https://manus.im</VendorDescription>

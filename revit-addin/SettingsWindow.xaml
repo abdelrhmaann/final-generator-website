@@ -1,0 +1,23 @@
+<Window x:Class="RevitConduitAddin.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2000/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2000/xaml"
+        Title="Conduit Settings" Height="250" Width="300" WindowStartupLocation="CenterScreen">
+    <Grid Margin="10">
+        <StackPanel>
+            <Label Content="Conduit Size (inches):" />
+            <ComboBox Name="SizeComboBox" Margin="0,0,0,10">
+                <ComboBoxItem Content="1/2" IsSelected="True"/>
+                <ComboBoxItem Content="3/4"/>
+                <ComboBoxItem Content="1"/>
+                <ComboBoxItem Content="1 1/4"/>
+                <ComboBoxItem Content="1 1/2"/>
+                <ComboBoxItem Content="2"/>
+            </ComboBox>
+            
+            <Label Content="Max Vertical Distance for Flex (ft):" />
+            <TextBox Name="DistanceTextBox" Text="5.0" Margin="0,0,0,20"/>
+            
+            <Button Name="OkButton" Content="OK" Click="OkButton_Click" Width="80" HorizontalAlignment="Right"/>
+        </StackPanel>
+    </Grid>
+</Window>
