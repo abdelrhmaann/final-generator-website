@@ -1,0 +1,12 @@
+{
+    "title": "DIALux Revit Distributor",
+    "version": "1.0.0",
+    "author": "Manus AI",
+    "description": "Import lighting fixtures from DIALux reports into Revit BIM models",
+    "extensions": {
+        "DIALuxDistributor": {
+            "type": "script",
+            "description": "Distribute DIALux lighting fixtures into Revit rooms"
+        }
+    }
+}
