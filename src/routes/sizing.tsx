@@ -185,13 +185,24 @@ function SizingPage() {
         <div className="h-72">
           <ResponsiveContainer>
             <BarChart data={chartData} margin={{ top: 10, right: 20, left: 0, bottom: 25 }}>
+              <defs>
+                <linearGradient id="barRunningGlow" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="var(--mod-sizing)" stopOpacity={1} />
+                  <stop offset="100%" stopColor="var(--mod-sizing)" stopOpacity={0.45} />
+                </linearGradient>
+                <linearGradient id="barSurgeGlow" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="var(--mod-fuel)" stopOpacity={1} />
+                  <stop offset="100%" stopColor="var(--mod-fuel)" stopOpacity={0.45} />
+                </linearGradient>
+              </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
               <XAxis dataKey="name" stroke="var(--muted-foreground)" tick={{ fontSize: 11 }} label={{ value: "Load Steps", position: "insideBottom", offset: -10, fill: "var(--muted-foreground)", fontSize: 11 }} />
               <YAxis stroke="var(--muted-foreground)" tick={{ fontSize: 11 }} label={{ value: "kVA", angle: -90, position: "insideLeft", fill: "var(--muted-foreground)", fontSize: 11 }} />
               <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 6, fontSize: 12 }} />
               <Legend wrapperStyle={{ fontSize: 11 }} />
-              <Bar dataKey="Running" stackId="a" fill="var(--mod-sizing)" name="Running kVA" />
-              <Bar dataKey="Surge"   stackId="a" fill="var(--mod-fuel)"   name="Starting Surge" radius={[3, 3, 0, 0]} />
+              <Bar dataKey="Running" stackId="a" fill="url(#barRunningGlow)" name="Running kVA" />
+              <Bar dataKey="Surge"   stackId="a" fill="url(#barSurgeGlow)"   name="Starting Surge" radius={[3, 3, 0, 0]} />
+
             </BarChart>
           </ResponsiveContainer>
         </div>
