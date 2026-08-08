@@ -1,5 +1,6 @@
 import { Link, useLocation, Outlet } from "@tanstack/react-router";
-import { Zap, Gauge, Fuel, ArrowLeftRight, Wind, History, BookOpen, FileDown, Thermometer, Bolt } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Zap, Gauge, Fuel, ArrowLeftRight, Wind, History, BookOpen, FileDown, Thermometer, Bolt, Menu, X } from "lucide-react";
 
 const MODULES = [
   { to: "/sizing",       label: "Generator kVA Sizing", icon: Zap,            tone: "var(--mod-sizing)", tag: "Generator kVA Sizing" },
