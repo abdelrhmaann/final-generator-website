@@ -277,57 +277,52 @@
   font-weight: 700;
 }
 
-/* === Glowing tech polish (accent: #FF8C28) === */
-:root {
-  --glow-rgb: 255, 140, 40;
-  --glow-soft: 0 0 24px rgba(var(--glow-rgb), 0.25), 0 0 2px rgba(var(--glow-rgb), 0.4);
-  --glow-strong: 0 0 34px rgba(var(--glow-rgb), 0.38), 0 0 3px rgba(var(--glow-rgb), 0.55);
-  --glow-border: 1px solid rgba(var(--glow-rgb), 0.15);
-}
+/* === Glowing tech polish (glow derives from each surface's own accent) === */
+:root { --glow: var(--tone, var(--primary)); }
 
 .noir-card,
 .gs-stat {
-  border: var(--glow-border);
-  box-shadow: var(--glow-soft);
-  transition: box-shadow 200ms ease, border-color 200ms ease, transform 200ms ease;
+  border: 1px solid color-mix(in oklab, var(--tone, var(--primary)) 18%, transparent);
+  box-shadow:
+    0 0 24px color-mix(in oklab, var(--tone, var(--primary)) 18%, transparent),
+    0 0 2px color-mix(in oklab, var(--tone, var(--primary)) 32%, transparent);
+  transition: box-shadow 200ms ease, border-color 200ms ease;
 }
 .noir-card:hover,
 .gs-stat:hover {
-  box-shadow: var(--glow-strong);
-  border-color: rgba(var(--glow-rgb), 0.3);
+  box-shadow:
+    0 0 34px color-mix(in oklab, var(--tone, var(--primary)) 30%, transparent),
+    0 0 3px color-mix(in oklab, var(--tone, var(--primary)) 45%, transparent);
+  border-color: color-mix(in oklab, var(--tone, var(--primary)) 34%, transparent);
 }
 
-/* illuminated numeric readouts */
+/* illuminated numeric readouts — glow matches the stat's own tone */
 .gs-stat-value {
-  text-shadow: 0 0 20px rgba(var(--glow-rgb), 0.5);
+  text-shadow: 0 0 20px color-mix(in oklab, var(--tone, var(--primary)) 45%, transparent);
 }
 
 /* buttons */
 .noir-btn-primary {
-  box-shadow: 0 0 18px rgba(var(--glow-rgb), 0.3), var(--shadow-ember);
+  box-shadow: 0 0 18px color-mix(in oklab, var(--tone, var(--primary)) 30%, transparent), var(--shadow-ember);
   transition: box-shadow 200ms ease, transform 200ms ease;
 }
 .noir-btn-primary:hover {
-  box-shadow: 0 0 30px rgba(var(--glow-rgb), 0.5), var(--shadow-ember);
+  box-shadow: 0 0 30px color-mix(in oklab, var(--tone, var(--primary)) 48%, transparent), var(--shadow-ember);
 }
 .noir-btn-ghost {
-  border-color: rgba(var(--glow-rgb), 0.18);
+  border-color: color-mix(in oklab, var(--tone, var(--primary)) 20%, transparent);
   transition: box-shadow 200ms ease, border-color 200ms ease, color 200ms ease;
 }
 .noir-btn-ghost:hover {
-  box-shadow: 0 0 18px rgba(var(--glow-rgb), 0.28);
-  border-color: rgba(var(--glow-rgb), 0.45);
+  box-shadow: 0 0 18px color-mix(in oklab, var(--tone, var(--primary)) 28%, transparent);
+  border-color: color-mix(in oklab, var(--tone, var(--primary)) 45%, transparent);
 }
 
-/* active tabs / selected chips */
-.gs-chip[data-active="true"],
-[data-state="active"].gs-chip,
+/* active tabs / selected chips glow in their own color */
+.gs-chip[data-active="true"] {
+  box-shadow: 0 4px 16px color-mix(in oklab, var(--success) 40%, transparent);
+}
 [data-slot="tabs-trigger"][data-state="active"] {
-  box-shadow: 0 4px 16px rgba(var(--glow-rgb), 0.4);
-  border-color: rgba(var(--glow-rgb), 0.4);
-}
-
-/* chart bars read as lit, not painted */
-.recharts-bar-rectangle path {
-  filter: drop-shadow(0 -2px 6px rgba(var(--glow-rgb), 0.35));
+  box-shadow: 0 4px 16px color-mix(in oklab, var(--tone, var(--primary)) 40%, transparent);
+  border-color: color-mix(in oklab, var(--tone, var(--primary)) 40%, transparent);
 }
