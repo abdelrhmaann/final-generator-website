@@ -126,7 +126,7 @@ export function Shell() {
             </div>
           </div>
         </header>
-        <div className="px-4 sm:px-6 lg:px-10 py-8 max-w-7xl mx-auto">
+        <div className="px-4 sm:px-6 lg:px-10 py-8 max-w-7xl mx-auto" style={active ? ({ ["--tone" as any]: active.tone } as React.CSSProperties) : undefined}>
 
           <Outlet />
         </div>
